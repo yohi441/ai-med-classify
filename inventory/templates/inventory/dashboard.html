@@ -1,0 +1,56 @@
+{% extends "inventory/base.html" %}
+
+{% block content %}
+<h1>📊 Dashboard</h1>
+
+<div>
+    <h3>Inventory Overview</h3>
+    <p>Total Medicines: {{ total_medicines }}</p>
+    <p>Total Stock: {{ total_stock }}</p>
+</div>
+
+<div>
+    <h3>⚠️ Low Stock</h3>
+    <ul>
+        {% for item in low_stock %}
+        <li>{{ item.medicine.generic_name }} — {{ item.quantity }} left</li>
+        {% empty %}
+        <li>No low stock medicines</li>
+        {% endfor %}
+    </ul>
+</div>
+
+<div>
+    <h3>⏳ Near Expiry</h3>
+    <ul>
+        {% for item in near_expiry %}
+        <li>{{ item.medicine.generic_name }} — Exp: {{ item.expiration_date }}</li>
+        {% empty %}
+        <li>No near-expiry medicines</li>
+        {% endfor %}
+    </ul>
+</div>
+
+<!-- <div>
+    <h3>🧠 Pending Classifications</h3>
+    <ul>
+        {% for request in pending_classifications %}
+        <li>{{ request.medicine.generic_name }} — Suggested: {{ request.predicted_label }}</li>
+        {% empty %}
+        <li>No pending requests</li>
+        {% endfor %}
+    </ul>
+</div> -->
+
+<div>
+    <h3>🕑 Recent Transactions</h3>
+    <ul>
+        {% for tx in recent_transactions %}
+        <li>{{ tx.medicine.generic_name }} — {{ tx.quantity_dispensed }} — {{ tx.transaction_date }}</li>
+        {% empty %}
+        <li>No transactions yet</li>
+        {% endfor %}
+    </ul>
+</div>
+
+{% endblock %}

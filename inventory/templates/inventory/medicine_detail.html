@@ -1,0 +1,72 @@
+{% extends "inventory/base.html" %}
+
+{% block content %}
+<h1>{{ medicine.generic_name }} {% if medicine.brand_name %} ({{ medicine.brand_name }}){% endif %}</h1>
+
+<div class="mb-4">
+    <p><strong>Dosage Form:</strong> {{ medicine.dosage_form }}</p>
+    <p><strong>Strength:</strong> {{ medicine.strength }}</p>
+    <p><strong>Manufacturer:</strong> {{ medicine.manufacturer }}</p>
+    <p><strong>Classification:</strong> {% if medicine.classification %}
+        {{ medicine.classification.label }}
+        {% else %}
+        Unclassified
+        {% endif %}</p>
+</div>
+
+<h3>📦 Inventory Batches</h3>
+<table class="table table-bordered">
+    <thead>
+        <tr>
+            <th>Batch Number</th>
+            <th>Quantity</th>
+            <th>Expiration Date</th>
+            <th>Last Updated</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for batch in medicine.inventory.all %}
+        <tr>
+            <td>{{ batch.batch_number }}</td>
+            <td>{{ batch.quantity }}</td>
+            <td>{{ batch.expiration_date }}</td>
+            <td>{{ batch.last_updated }}</td>
+        </tr>
+        {% empty %}
+        <tr>
+            <td colspan="4" class="text-center">No inventory records for this medicine.</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+<h3>📜 Recent Transactions</h3>
+<table class="table table-bordered">
+    <thead>
+        <tr>
+            <th>Date</th>
+            <th>User</th>
+            <th>Quantity Dispensed</th>
+            <th>Status</th>
+            <th>Remarks</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for tx in medicine.transaction.all %}
+        <tr>
+            <td>{{ tx.transaction_date }}</td>
+            <td>{{ tx.user }}</td>
+            <td>{{ tx.quantity_dispensed }}</td>
+            <td>{{ tx.status }}</td>
+            <td>{{ tx.remarks }}</td>
+        </tr>
+        {% empty %}
+        <tr>
+            <td colspan="5" class="text-center">No transactions for this medicine.</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+<a href="/medicines" class="btn btn-secondary">← Back to Medicines</a>
+{% endblock %}
