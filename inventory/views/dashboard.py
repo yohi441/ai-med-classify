@@ -5,6 +5,7 @@ from django.utils import timezone
 from django.db.models import Count
 from inventory.models import Medicine, Inventory, Classification, Transaction
 from django.contrib.auth.mixins import LoginRequiredMixin
+from datetime import datetime
 
 class DashboardView(LoginRequiredMixin, TemplateView):
     template_name = "inventory/dashboard.html"
@@ -29,5 +30,7 @@ class DashboardView(LoginRequiredMixin, TemplateView):
 
         # Recent transactions
         context['recent_transactions'] = Transaction.objects.order_by('-transaction_date')[:5]
+        context['now'] = datetime.now()
+
 
         return context

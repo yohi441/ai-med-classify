@@ -1,0 +1,24 @@
+{% extends "inventory/base.html" %}
+
+{% block content %}
+<h1>➕ New Transaction</h1>
+
+<form method="post">
+    {% csrf_token %}
+
+    {% if form.errors %}
+    <div class="alert alert-danger">
+        <ul>
+            {% for field, errors in form.errors.items %}
+            <li><strong>{{ field|capfirst }}</strong>: {{ errors|join:", " }}</li>
+            {% endfor %}
+        </ul>
+    </div>
+    {% endif %}
+
+    {{ form.as_p }}
+    <button type="submit">Save Transaction</button>
+</form>
+
+<p><a href="{% url 'transaction-list' %}">⬅ Back to Transactions</a></p>
+{% endblock %}

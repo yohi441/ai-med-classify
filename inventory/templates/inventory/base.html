@@ -1,3 +1,5 @@
+{% load static %}
+
 <!DOCTYPE html>
 <html lang="en">
 
@@ -36,9 +38,10 @@
             <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav ms-auto">
                     <li class="nav-item"><a class="nav-link" href="{% url 'dashboard' %}">Dashboard</a></li>
-                    <li class="nav-item"><a class="nav-link" href="/medicines">Medicines</a></li>
-                    <li class="nav-item"><a class="nav-link" href="#">Inventory</a></li>
-                    <li class="nav-item"><a class="nav-link" href="#">Transactions</a></li>
+                    <li class="nav-item"><a class="nav-link" href="{% url 'classify' %}">Classify</a></li>
+                    <li class="nav-item"><a class="nav-link" href="{% url 'medicines-list' %}">Medicines</a></li>
+                    <li class="nav-item"><a class="nav-link" href="{% url 'inventory-list' %}">Inventory</a></li>
+                    <li class="nav-item"><a class="nav-link" href="{% url 'transaction-list' %}">Transactions</a></li>
                     {% if user.is_authenticated %}
                     <form action="{% url 'logout' %}" method="post" style="display:inline;">
                         {% csrf_token %}
@@ -58,7 +61,7 @@
 
     <!-- Footer -->
     <footer>
-        <p>AI Medicine Inventory System — {{ now|date:"Y" }}</p>
+        <p>AI Medicine Inventory System — {{ now|date:"Y-m-d" }}</p>
     </footer>
 
     <!-- Bootstrap JS -->

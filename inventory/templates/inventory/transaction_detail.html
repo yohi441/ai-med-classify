@@ -1,0 +1,32 @@
+{% extends "inventory/base.html" %}
+
+{% block content %}
+<h1>Transaction #{{ transaction.id }}</h1>
+
+<p><strong>Medicine:</strong> {{ transaction.medicine }}</p>
+<p><strong>Quantity Dispensed:</strong> {{ transaction.quantity_dispensed }}</p>
+<p><strong>Status:</strong> {{ transaction.get_status_display }}</p>
+{% if transaction.status == "pending" %}
+<form method="post" action="{% url 'transaction-status-update' transaction.pk %}">
+    {% csrf_token %}
+    <button type="submit" name="status" value="approved">✅ Approve</button>
+    <button type="submit" name="status" value="dispensed">💊 Dispense</button>
+    <button type="submit" name="status" value="rejected">❌ Reject</button>
+</form>
+{% elif transaction.status == "approved" %}
+<form method="post" action="{% url 'transaction-status-update' transaction.pk %}">
+    {% csrf_token %}
+    <button type="submit" name="status" value="dispensed">💊 Dispense</button>
+    <button type="submit" name="status" value="rejected">❌ Reject</button>
+</form>
+{% else %}
+<p><em>This transaction can no longer be modified.</em></p>
+{% endif %}
+<p><strong>Stock Before:</strong> {{ transaction.stock_before }}</p>
+<p><strong>Stock After:</strong> {{ transaction.stock_after }}</p>
+<p><strong>Pharmacist:</strong> {{ transaction.user }}</p>
+<p><strong>Date:</strong> {{ transaction.transaction_date }}</p>
+<p><strong>Remarks:</strong> {{ transaction.remarks }}</p>
+
+<a href="{% url 'transaction-list' %}">⬅ Back to Transactions</a>
+{% endblock %}

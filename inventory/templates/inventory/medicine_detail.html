@@ -52,7 +52,7 @@
         </tr>
     </thead>
     <tbody>
-        {% for tx in medicine.transaction.all %}
+        {% for tx in medicine.transactions.all %}
         <tr>
             <td>{{ tx.transaction_date }}</td>
             <td>{{ tx.user }}</td>

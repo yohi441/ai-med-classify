@@ -1,8 +1,9 @@
 from django.db import models
 from django.contrib.auth.models import User
+from django.db.models import Sum
+from django.db import transaction
 
 class Classification(models.Model):
-    medicine = models.ForeignKey("Medicine", on_delete=models.CASCADE, null=True, blank=True, related_name="classifications")
     label = models.CharField(max_length=100)
     ai_confidence_score = models.FloatField(null=True, blank=True)
     notes = models.TextField(blank=True)
@@ -17,13 +18,13 @@ class Medicine(models.Model):
     dosage_form = models.CharField(max_length=100)
     strength = models.CharField(max_length=100)
     manufacturer = models.CharField(max_length=255, blank=True)
-    classification = models.ForeignKey(Classification, on_delete=models.SET_NULL, null=True, blank=True, related_name="medicines")
+    classification = models.ManyToManyField(Classification, related_name="medicines", blank=True)
 
     def __str__(self):
         return f"{self.generic_name} ({self.brand_name})"
 
 class Inventory(models.Model):
-    medicine = models.ForeignKey(Medicine, on_delete=models.CASCADE)
+    medicine = models.ForeignKey(Medicine, on_delete=models.CASCADE, related_name="inventory")
     batch_number = models.CharField(max_length=100)
     quantity = models.PositiveIntegerField()
     expiration_date = models.DateField()
@@ -32,10 +33,13 @@ class Inventory(models.Model):
 
     def __str__(self):
         return f"{self.medicine.generic_name} - Batch {self.batch_number}"
+    
+    class Meta:
+        verbose_name_plural = "Inventories"
 
 class Transaction(models.Model):
     user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True)
-    medicine = models.ForeignKey(Medicine, on_delete=models.CASCADE)
+    medicine = models.ForeignKey(Medicine, on_delete=models.CASCADE, related_name="transactions")
     quantity_dispensed = models.PositiveIntegerField()
     transaction_date = models.DateTimeField(auto_now_add=True)
     remarks = models.TextField(blank=True)
@@ -62,9 +66,45 @@ class Transaction(models.Model):
 
     def __str__(self):
         return f"{self.quantity_dispensed} of {self.medicine} by {self.user}"
+    
+    def dispense(self):
+        """
+        Deducts stock using FIFO when transaction is marked dispensed.
+        """
+        if self.status != "dispensed":
+            return  # only deduct when status is dispensed
+
+        qty_needed = self.quantity_dispensed
+        inventories = Inventory.objects.filter(
+            medicine=self.medicine,
+            quantity__gt=0
+        ).order_by("expiration_date", "date_added")  # FIFO
+
+        total_available = inventories.aggregate(total=Sum("quantity"))["total"] or 0
+        self.stock_before = total_available
+
+        if total_available < qty_needed:
+            raise ValueError("Not enough stock available!")
+
+        with transaction.atomic():
+            for inv in inventories:
+                if qty_needed <= 0:
+                    break
+                if inv.quantity <= qty_needed:
+                    qty_needed -= inv.quantity
+                    inv.quantity = 0
+                else:
+                    inv.quantity -= qty_needed
+                    qty_needed = 0
+                inv.save()
+
+        # Save final stock_after
+        remaining = inventories.aggregate(total=Sum("quantity"))["total"] or 0
+        self.stock_after = remaining
+        self.save()
 
 class AuditLog(models.Model):
-    user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True)
+    user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, related_name="audit_log")
     action_type = models.CharField(max_length=100)
     timestamp = models.DateTimeField(auto_now_add=True)
 

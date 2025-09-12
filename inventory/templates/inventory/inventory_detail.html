@@ -1,0 +1,39 @@
+{% extends "inventory/base.html" %}
+{% block content %}
+
+<h1>Batch {{ inventory.batch_number }}</h1>
+<p><strong>Medicine:</strong> {{ inventory.medicine.generic_name }} ({{ inventory.medicine.brand_name }})</p>
+<p><strong>Quantity:</strong> {{ inventory.quantity }}</p>
+<p><strong>Expiration Date:</strong> {{ inventory.expiration_date }}</p>
+<p><strong>Added On:</strong> {{ inventory.date_added }}</p>
+<p><strong>Last Updated:</strong> {{ inventory.last_updated }}</p>
+
+<hr>
+<h2>🧾 Transactions involving this batch</h2>
+<table class="table">
+    <thead>
+        <tr>
+            <th>Date</th>
+            <th>User</th>
+            <th>Status</th>
+            <th>Quantity Dispensed</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for tx in transactions %}
+        <tr>
+            <td>{{ tx.transaction_date }}</td>
+            <td>{{ tx.user.username }}</td>
+            <td>{{ tx.get_status_display }}</td>
+            <td>{{ tx.quantity_dispensed }}</td>
+        </tr>
+        {% empty %}
+        <tr>
+            <td colspan="4">No transactions for this batch.</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+<p><a href="{% url 'inventory-list' %}">⬅ Back to Inventory</a></p>
+{% endblock %}
