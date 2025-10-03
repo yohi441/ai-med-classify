@@ -1,56 +1,64 @@
 {% extends "inventory/base.html" %}
 
 {% block content %}
-<h1>📊 Dashboard</h1>
+<div class="p-6">
+    <h1 class="text-3xl font-bold mb-6 text-blue-600">📊 Dashboard</h1>
 
-<div>
-    <h3>Inventory Overview</h3>
-    <p>Total Medicines: {{ total_medicines }}</p>
-    <p>Total Stock: {{ total_stock }}</p>
+    <!-- Stats Overview -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+        <div class="bg-white rounded-xl shadow-md p-6 border border-gray-200">
+            <h3 class="text-lg font-semibold text-gray-600">Total Medicines</h3>
+            <p class="mt-2 text-2xl font-bold text-blue-600">{{ total_medicines }}</p>
+        </div>
+        <div class="bg-white rounded-xl shadow-md p-6 border border-gray-200">
+            <h3 class="text-lg font-semibold text-gray-600">Total Stock</h3>
+            <p class="mt-2 text-2xl font-bold text-green-600">{{ total_stock }}</p>
+        </div>
+    </div>
+
+    <!-- Low Stock -->
+    <div class="bg-white rounded-xl shadow-md p-6 mb-6 border border-gray-200">
+        <h3 class="text-xl font-semibold mb-4 text-red-600">⚠️ Low Stock</h3>
+        <ul class="space-y-2 text-gray-700">
+            {% for item in low_stock %}
+            <li class="flex justify-between items-center p-3 bg-red-50 rounded-md">
+                <span>{{ item.medicine.generic_name }}</span>
+                <span class="font-bold text-red-600">{{ item.quantity }} left</span>
+            </li>
+            {% empty %}
+            <li class="text-gray-500">No low stock medicines</li>
+            {% endfor %}
+        </ul>
+    </div>
+
+    <!-- Near Expiry -->
+    <div class="bg-white rounded-xl shadow-md p-6 mb-6 border border-gray-200">
+        <h3 class="text-xl font-semibold mb-4 text-yellow-600">⏳ Near Expiry</h3>
+        <ul class="space-y-2 text-gray-700">
+            {% for item in near_expiry %}
+            <li class="flex justify-between items-center p-3 bg-yellow-50 rounded-md">
+                <span>{{ item.medicine.generic_name }}</span>
+                <span class="font-bold text-yellow-600">Exp: {{ item.expiration_date }}</span>
+            </li>
+            {% empty %}
+            <li class="text-gray-500">No near-expiry medicines</li>
+            {% endfor %}
+        </ul>
+    </div>
+
+    <!-- Recent Transactions -->
+    <div class="bg-white rounded-xl shadow-md p-6 border border-gray-200">
+        <h3 class="text-xl font-semibold mb-4 text-blue-600">🕑 Recent Transactions</h3>
+        <ul class="divide-y divide-gray-200">
+            {% for tx in recent_transactions %}
+            <li class="flex justify-between items-center py-3">
+                <span class="text-gray-700">{{ tx.medicine.generic_name }}</span>
+                <span class="text-sm text-gray-500">{{ tx.quantity_dispensed }} — {{ tx.transaction_date|date:"Y-m-d H:i" }}</span>
+            </li>
+            {% empty %}
+            <li class="py-3 text-gray-500">No transactions yet</li>
+            {% endfor %}
+        </ul>
+    </div>
 </div>
-
-<div>
-    <h3>⚠️ Low Stock</h3>
-    <ul>
-        {% for item in low_stock %}
-        <li>{{ item.medicine.generic_name }} — {{ item.quantity }} left</li>
-        {% empty %}
-        <li>No low stock medicines</li>
-        {% endfor %}
-    </ul>
-</div>
-
-<div>
-    <h3>⏳ Near Expiry</h3>
-    <ul>
-        {% for item in near_expiry %}
-        <li>{{ item.medicine.generic_name }} — Exp: {{ item.expiration_date }}</li>
-        {% empty %}
-        <li>No near-expiry medicines</li>
-        {% endfor %}
-    </ul>
-</div>
-
-<!-- <div>
-    <h3>🧠 Pending Classifications</h3>
-    <ul>
-        {% for request in pending_classifications %}
-        <li>{{ request.medicine.generic_name }} — Suggested: {{ request.predicted_label }}</li>
-        {% empty %}
-        <li>No pending requests</li>
-        {% endfor %}
-    </ul>
-</div> -->
-
-<div>
-    <h3>🕑 Recent Transactions</h3>
-    <ul>
-        {% for tx in recent_transactions %}
-        <li>{{ tx.medicine.generic_name }} — {{ tx.quantity_dispensed }} — {{ tx.transaction_date }}</li>
-        {% empty %}
-        <li>No transactions yet</li>
-        {% endfor %}
-    </ul>
-</div>
-
 {% endblock %}

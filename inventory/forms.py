@@ -6,7 +6,15 @@ from django.db.models import Sum
 class MedicineClassificationForm(forms.Form):
     input_text = forms.CharField(
         label='Enter Medicine Name or Description',
-        widget=forms.Textarea(attrs={'rows': 3, 'placeholder': 'e.g. paracetamol tablet 500mg'}),
+        widget=forms.Textarea(
+            attrs={
+                'rows': 3,
+                'placeholder': 'e.g. paracetamol tablet 500mg',
+                'class': 'w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm '
+                         'focus:ring-2 focus:ring-blue-500 focus:border-blue-500 '
+                         'text-sm resize-none',
+            }
+        ),
     )
 
 
@@ -16,7 +24,19 @@ class TransactionForm(forms.ModelForm):
         model = Transaction
         fields = ["medicine", "quantity_dispensed", "remarks", "status"]
         widgets = {
-            "remarks": forms.Textarea(attrs={"rows": 2}),
+            "medicine": forms.Select(attrs={
+                "class": "cursor-pointer w-full border rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+            }),
+            "quantity_dispensed": forms.NumberInput(attrs={
+                "class": "w-full border rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+            }),
+            "status": forms.Select(attrs={
+                "class": "cursor-pointer w-full border rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+            }),
+            "remarks": forms.Textarea(attrs={
+                "rows": 3,
+                "class": "w-full border rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+            }),
         }
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)

@@ -1,79 +1,101 @@
 {% extends "inventory/base.html" %}
 {% block content %}
-<div class="container mt-4">
-    <h2>Transactions</h2>
-    <p><a href="{% url 'transaction-create' %}">➕ New Transaction</a></p>
-    <table class="table table-striped table-bordered">
-        <thead>
-            <tr>
-                <th>Date</th>
-                <th>User</th>
-                <th>Medicine</th>
-                <th>Quantity</th>
-                <th>Status</th>
-                <th>Remarks</th>
-                <th></th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for tx in transactions %}
-            <tr>
-                <td>{{ tx.transaction_date|date:"Y-m-d H:i" }}</td>
-                <td>{{ tx.user.username }}</td>
-                <td>{{ tx.medicine.generic_name }} ({{ tx.medicine.brand_name }})</td>
-                <td>
-                    {{ tx.quantity_dispensed }}
-                    <small class="text-muted">(before: {{ tx.stock_before|default:"-" }},
-                        after: {{ tx.stock_after|default:"-" }})</small>
-                </td>
-                <td>
-                    {% if tx.status == "approved" %}
-                    <span class="badge bg-success">{{ tx.status }}</span>
-                    {% elif tx.status == "pending" %}
-                    <span class="badge bg-warning text-dark">{{ tx.status }}</span>
-                    {% elif tx.status == "rejected" %}
-                    <span class="badge bg-danger">{{ tx.status }}</span>
-                    {% else %}
-                    <span class="badge bg-secondary">{{ tx.status }}</span>
-                    {% endif %}
-                </td>
-                <td>{{ tx.remarks|default:"-" }}</td>
-                <td>
-                    <a href="/transaction/{{tx.pk}}" class="btn btn-sm btn-primary">View</a>
-                </td>
-            </tr>
-            {% empty %}
-            <tr>
-                <td colspan="7" class="text-center">No transactions found.</td>
-            </tr>
-            {% endfor %}
-        </tbody>
-    </table>
-</div>
-<div class="mt-3">
+<div class="max-w-6xl mx-auto mt-6 bg-white shadow rounded-lg p-6">
+    <div class="flex items-center justify-between mb-4">
+        <h2 class="text-2xl font-bold text-blue-600">📋 Transactions</h2>
+        <a href="{% url 'transaction-create' %}" 
+           class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition">
+            ➕ New Transaction
+        </a>
+    </div>
+
+    <div class="overflow-x-auto">
+        <table class="min-w-full border border-gray-200 text-sm">
+            <thead class="bg-gray-100">
+                <tr class="text-left">
+                    <th class="px-4 py-2 border">Date</th>
+                    <th class="px-4 py-2 border">User</th>
+                    <th class="px-4 py-2 border">Medicine</th>
+                    <th class="px-4 py-2 border">Quantity</th>
+                    <th class="px-4 py-2 border">Status</th>
+                    <th class="px-4 py-2 border">Remarks</th>
+                    <th class="px-4 py-2 border text-center">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for tx in transactions %}
+                <tr class="hover:bg-gray-50">
+                    <td class="px-4 py-2 border">{{ tx.transaction_date|date:"Y-m-d H:i" }}</td>
+                    <td class="px-4 py-2 border">{{ tx.user.username }}</td>
+                    <td class="px-4 py-2 border">
+                        {{ tx.medicine.generic_name }} 
+                        <span class="text-gray-500">({{ tx.medicine.brand_name }})</span>
+                    </td>
+                    <td class="px-4 py-2 border">
+                        {{ tx.quantity_dispensed }}
+                        <span class="block text-xs text-gray-500">
+                            (before: {{ tx.stock_before|default:"-" }}, after: {{ tx.stock_after|default:"-" }})
+                        </span>
+                    </td>
+                    <td class="px-4 py-2 border">
+                        {% if tx.status == "approved" %}
+                        <span class="px-2 py-1 text-xs font-medium rounded-full bg-blue-100 text-blue-800">
+                            {{ tx.status }}
+                        </span>
+                        {% elif tx.status == "pending" %}
+                        <span class="px-2 py-1 text-xs font-medium rounded-full bg-yellow-100 text-yellow-800">
+                            {{ tx.status }}
+                        </span>
+                        {% elif tx.status == "rejected" %}
+                        <span class="px-2 py-1 text-xs font-medium rounded-full bg-red-100 text-red-800">
+                            {{ tx.status }}
+                        </span>
+                        {% else %}
+                        <span class="px-2 py-1 text-xs font-medium rounded-full bg-gray-200 text-gray-800">
+                            {{ tx.status }}
+                        </span>
+                        {% endif %}
+                    </td>
+                    <td class="px-4 py-2 border">{{ tx.remarks|default:"-" }}</td>
+                    <td class="px-4 py-2 border text-center">
+                        <a href="/transaction/{{tx.pk}}" 
+                           class="bg-blue-500 text-white px-3 py-1 rounded-md text-sm hover:bg-blue-600 transition">
+                            View
+                        </a>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="7" class="px-4 py-6 text-center text-gray-500">
+                        No transactions found.
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
     {% if is_paginated %}
-    <nav>
-        <ul class="pagination">
+    <div class="mt-4 flex justify-center">
+        <nav class="flex items-center space-x-1">
             {% if page_obj.has_previous %}
-            <li class="page-item">
-                <a class="page-link"
-                    href="?page={{ page_obj.previous_page_number }}{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}">Previous</a>
-            </li>
+            <a href="?page={{ page_obj.previous_page_number }}{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}" 
+               class="px-3 py-1 border rounded hover:bg-gray-100">Previous</a>
             {% endif %}
+
             {% for num in paginator.page_range %}
-            <li class="page-item {% if page_obj.number == num %}active{% endif %}">
-                <a class="page-link"
-                    href="?page={{ num }}{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}">{{num}}</a>
-            </li>
+            <a href="?page={{ num }}{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}" 
+               class="px-3 py-1 border rounded hover:bg-gray-100 {% if page_obj.number == num %}bg-blue-600 text-white{% endif %}">
+               {{ num }}
+            </a>
             {% endfor %}
+
             {% if page_obj.has_next %}
-            <li class="page-item">
-                <a class="page-link"
-                    href="?page={{ page_obj.next_page_number }}{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}">Next</a>
-            </li>
+            <a href="?page={{ page_obj.next_page_number }}{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}" 
+               class="px-3 py-1 border rounded hover:bg-gray-100">Next</a>
             {% endif %}
-        </ul>
-    </nav>
+        </nav>
+    </div>
     {% endif %}
 </div>
 {% endblock %}

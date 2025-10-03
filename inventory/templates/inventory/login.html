@@ -1,11 +1,58 @@
 {% extends "inventory/base.html" %}
 
 {% block content %}
-<h2>Login</h2>
 
-<form method="post">
-    {% csrf_token %}
+<!-- <form method="post">
+    
     {{ form.as_p }}
     <button type="submit">Log In</button>
-</form>
+</form> -->
+
+<div class="">
+  
+    <div class="mx-auto mt-10 max-w-md w-full bg-white rounded-2xl shadow-lg p-8">
+    <header class="text-center mb-6">
+      <div class="inline-flex items-center justify-center w-12 h-12 rounded-full bg-indigo-100 mb-3">
+        
+      </div>
+      <h1 class="text-2xl font-semibold text-gray-800">Sign in to MedicineApp</h1>
+      <p class="mt-1 text-sm text-gray-500">Secure access to prescriptions, inventory, and reports</p>
+    </header>
+        {% if form.non_field_errors %}
+        <ul class="errorlist mb-5">
+            {% for error in form.non_field_errors %}
+                <li class="text-sm text-red-500">{{ error }}</li>
+            {% endfor %}
+        </ul>
+        {% endif %}
+    <form class="space-y-4" method="post">
+        {% csrf_token %}
+      <div>
+        <label for="username" class="block text-sm font-medium text-gray-700">Username</label>
+        <input name="username" type="text" required
+               class="mt-1 block w-full px-4 py-2 border border-gray-200 rounded-lg shadow-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-300 focus:border-indigo-400">
+      </div>
+
+      <div>
+        <label for="password" class="block text-sm font-medium text-gray-700">Password</label>
+        <input id="password" name="password" type="password" required
+               class="mt-1 block w-full px-4 py-2 border border-gray-200 rounded-lg shadow-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-300 focus:border-indigo-400">
+  {% if form.name.errors %}
+        <ul class="errorlist">
+            {% for error in form.name.errors %}
+                <li>{{ error }}</li>
+            {% endfor %}
+        </ul>
+    {% endif %}
+      </div>
+
+      <button type="submit"
+              class="w-full inline-flex justify-center items-center px-4 py-2 border border-transparent text-sm font-medium rounded-lg shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-indigo-400">
+        Sign in
+      </button>
+
+
+    </form>
+  </div>
+</div>
 {% endblock %}

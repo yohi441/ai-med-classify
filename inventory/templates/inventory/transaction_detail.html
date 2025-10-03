@@ -1,32 +1,77 @@
 {% extends "inventory/base.html" %}
 
 {% block content %}
-<h1>Transaction #{{ transaction.id }}</h1>
+<div class="max-w-3xl mx-auto bg-white shadow-md rounded-lg p-6">
+    <h1 class="text-2xl font-bold mb-6 text-blue-600">💊 Transaction #{{ transaction.id }}</h1>
 
-<p><strong>Medicine:</strong> {{ transaction.medicine }}</p>
-<p><strong>Quantity Dispensed:</strong> {{ transaction.quantity_dispensed }}</p>
-<p><strong>Status:</strong> {{ transaction.get_status_display }}</p>
-{% if transaction.status == "pending" %}
-<form method="post" action="{% url 'transaction-status-update' transaction.pk %}">
-    {% csrf_token %}
-    <button type="submit" name="status" value="approved">✅ Approve</button>
-    <button type="submit" name="status" value="dispensed">💊 Dispense</button>
-    <button type="submit" name="status" value="rejected">❌ Reject</button>
-</form>
-{% elif transaction.status == "approved" %}
-<form method="post" action="{% url 'transaction-status-update' transaction.pk %}">
-    {% csrf_token %}
-    <button type="submit" name="status" value="dispensed">💊 Dispense</button>
-    <button type="submit" name="status" value="rejected">❌ Reject</button>
-</form>
-{% else %}
-<p><em>This transaction can no longer be modified.</em></p>
-{% endif %}
-<p><strong>Stock Before:</strong> {{ transaction.stock_before }}</p>
-<p><strong>Stock After:</strong> {{ transaction.stock_after }}</p>
-<p><strong>Pharmacist:</strong> {{ transaction.user }}</p>
-<p><strong>Date:</strong> {{ transaction.transaction_date }}</p>
-<p><strong>Remarks:</strong> {{ transaction.remarks }}</p>
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+        <p><span class="font-semibold">Medicine:</span> {{ transaction.medicine }}</p>
+        <p><span class="font-semibold">Quantity Dispensed:</span> {{ transaction.quantity_dispensed }}</p>
+        <p><span class="font-semibold">Status:</span> 
+            <span class="px-2 py-1 rounded-full text-sm 
+                {% if transaction.status == 'pending' %} bg-yellow-100 text-yellow-800 
+                {% elif transaction.status == 'approved' %} bg-blue-100 text-blue-800 
+                {% elif transaction.status == 'dispensed' %} bg-green-100 text-green-800 
+                {% elif transaction.status == 'rejected' %} bg-red-100 text-red-800 
+                {% endif %}">
+                {{ transaction.get_status_display }}
+            </span>
+        </p>
+        <p><span class="font-semibold">Stock Before:</span> {{ transaction.stock_before }}</p>
+        <p><span class="font-semibold">Stock After:</span> {{ transaction.stock_after }}</p>
+        <p><span class="font-semibold">Pharmacist:</span> {{ transaction.user }}</p>
+        <p><span class="font-semibold">Date:</span> {{ transaction.transaction_date }}</p>
+    </div>
 
-<a href="{% url 'transaction-list' %}">⬅ Back to Transactions</a>
+    <div class="mb-6">
+        <p class="font-semibold">Remarks:</p>
+        <p class="bg-gray-50 border rounded-md p-3 text-gray-700">
+            {{ transaction.remarks|default:"— No remarks —" }}
+        </p>
+    </div>
+
+    {% if transaction.status == "pending" %}
+    <form method="post" action="{% url 'transaction-status-update' transaction.pk %}" class="flex gap-3 flex-wrap">
+        {% csrf_token %}
+        <button type="submit" name="status" value="approved"
+            class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition">
+            ✅ Approve
+        </button>
+        <button type="submit" name="status" value="dispensed"
+            class="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition">
+            💊 Dispense
+        </button>
+        <button type="submit" name="status" value="rejected"
+            class="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 transition">
+            ❌ Reject
+        </button>
+    </form>
+
+    {% elif transaction.status == "approved" %}
+    <form method="post" action="{% url 'transaction-status-update' transaction.pk %}" class="flex gap-3 flex-wrap">
+        {% csrf_token %}
+        <button type="submit" name="status" value="dispensed"
+            class="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition">
+            💊 Dispense
+        </button>
+        <button type="submit" name="status" value="rejected"
+            class="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 transition">
+            ❌ Reject
+        </button>
+    </form>
+
+    {% else %}
+    <p class="text-gray-500 italic mb-6">This transaction can no longer be modified.</p>
+    {% endif %}
+
+    <div class="mt-6">
+        <button class="bg-blue-500 px-2 py-2 rounded-md">
+            <a href="{% url 'transaction-list' %}" 
+            class="text-white hover:text-white flex items-center">
+                ⬅ Back to Transactions
+            </a>
+        </button>
+        
+    </div>
+</div>
 {% endblock %}
