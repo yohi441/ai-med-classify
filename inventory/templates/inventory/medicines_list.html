@@ -56,38 +56,58 @@
   </table>
 </div>
 
+<!-- Pagination -->
 <div class="mt-6">
   {% if is_paginated %}
   <nav>
     <ul class="flex items-center justify-center space-x-2">
+      
+      <!-- Previous Button -->
       {% if page_obj.has_previous %}
       <li>
         <a class="px-3 py-1 border rounded text-sm hover:bg-gray-100"
-          href="?page={{ page_obj.previous_page_number }}{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}">
+           href="?page={{ page_obj.previous_page_number }}{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}">
           Previous
         </a>
       </li>
       {% endif %}
 
+      <!-- Page Numbers (max 5 visible) -->
       {% for num in paginator.page_range %}
-      <li>
-        <a class="px-3 py-1 border rounded text-sm {% if page_obj.number == num %}bg-blue-600 text-white{% else %}hover:bg-gray-100{% endif %}"
-          href="?page={{ num }}{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}">
-          {{ num }}
-        </a>
-      </li>
+        {% if num == 1 or num == paginator.num_pages %}
+          <li>
+            <a class="px-3 py-1 border rounded text-sm {% if page_obj.number == num %}bg-blue-600 text-white{% else %}hover:bg-gray-100{% endif %}"
+               href="?page={{ num }}{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}">
+              {{ num }}
+            </a>
+          </li>
+
+        {% elif num >= page_obj.number|add:-2 and num <= page_obj.number|add:2 %}
+          <li>
+            <a class="px-3 py-1 border rounded text-sm {% if page_obj.number == num %}bg-blue-600 text-white{% else %}hover:bg-gray-100{% endif %}"
+               href="?page={{ num }}{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}">
+              {{ num }}
+            </a>
+          </li>
+
+        {% elif num == page_obj.number|add:-3 or num == page_obj.number|add:3 %}
+          <li><span class="px-2 text-gray-400">...</span></li>
+        {% endif %}
       {% endfor %}
 
+      <!-- Next Button -->
       {% if page_obj.has_next %}
       <li>
         <a class="px-3 py-1 border rounded text-sm hover:bg-gray-100"
-          href="?page={{ page_obj.next_page_number }}{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}">
+           href="?page={{ page_obj.next_page_number }}{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}">
           Next
         </a>
       </li>
       {% endif %}
+
     </ul>
   </nav>
   {% endif %}
 </div>
+
 {% endblock %}

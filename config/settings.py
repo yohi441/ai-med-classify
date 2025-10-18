@@ -41,6 +41,9 @@ INSTALLED_APPS = [
 
     # project app
     'inventory',
+
+    #3rd party
+    'django_htmx',
 ]
 
 
@@ -52,6 +55,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    "django_htmx.middleware.HtmxMiddleware",
 ]
 
 ROOT_URLCONF = 'config.urls'
@@ -80,9 +84,9 @@ WSGI_APPLICATION = 'config.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'testdb',
-        'USER': 'root',
-        'PASSWORD': 'testpassword',
+        'NAME': 'django_db',
+        'USER': 'django_user',
+        'PASSWORD': 'djpassword',
         'HOST': '127.0.0.1',
         'PORT': '3306',
     }

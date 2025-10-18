@@ -15,7 +15,7 @@ class TransactionListView(LoginRequiredMixin, ListView):
     model = Transaction
     template_name = "inventory/transactions_list.html"
     context_object_name = "transactions"
-    paginate_by = 20
+    paginate_by = 2
     login_url = "login"
 
     def get_queryset(self):

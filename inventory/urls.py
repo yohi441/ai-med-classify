@@ -2,7 +2,7 @@
 
 from django.urls import path
 from inventory.views.classification import MedicineClassificationView
-from inventory.views.dashboard import DashboardView
+from inventory.views.dashboard import DashboardView, low_stock_pagination, near_expiry_pagination, recent_transactions_pagination    
 from inventory.views.medicine import MedicineDetailView, MedicineListView
 from inventory.views.inventory import InventoryListView, InventoryDetailView
 from inventory.views.transaction import TransactionListView, TransactionCreateView, TransactionDetailView, TransactionStatusUpdateView
@@ -20,6 +20,11 @@ urlpatterns = [
     path("transaction/<int:pk>/", TransactionDetailView.as_view(), name="transaction-detail"),
     path("transactions/<int:pk>/status/", TransactionStatusUpdateView.as_view(), name="transaction-status-update"),
 
+
+    # HTMX
+    path("low-stock-pagination/", low_stock_pagination, name="low-stock-pagination"),
+    path("near-expiry-pagination/", near_expiry_pagination, name="near-expiry-pagination"),
+    path("tx-pagination/", recent_transactions_pagination, name="recent-transactions-pagination"),
 
 
     # authentication

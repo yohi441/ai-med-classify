@@ -1,0 +1,67 @@
+<div id="recent-transaction-container" class="bg-white rounded-xl shadow-md p-6 border border-gray-200">
+        <h3 class="text-xl font-semibold mb-4 text-blue-600">🕑 Recent Transactions</h3>
+        <div id="rt-indicator" class="items-center justify-center align-middle htmx-indicator w-full h-64">
+            <div>
+                 <svg class="w-10 h-10 animate-spin text-blue-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" aria-hidden="true">
+                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"></path>
+                </svg>
+            </div>
+           
+        </div>
+        <ul id="rt-indicator" class="divide-y divide-gray-200 loading-display">
+            <li class="flex justify-between items-center py-3 text-blue-600">
+                <span>Medicine</span>
+                <span>Quantity — Date & Time</span>
+            </li>
+            {% for tx in recent_transactions %}
+            <li>
+                <a href="{% url 'transaction-detail' tx.pk %}" class="block hover:bg-gray-50 px-2 rounded-md">
+                    <span class="flex justify-between items-center py-3">
+                        <span class="text-gray-700">{{ tx.medicine.generic_name }}</span>
+                        <span class="text-sm text-gray-500">{{ tx.quantity_dispensed }} — {{ tx.transaction_date|date:"Y-m-d H:i" }}</span>
+                    </span>
+                </a>
+            </li>
+            {% empty %}
+            <li class="py-3 text-gray-500">No transactions yet</li>
+            {% endfor %}
+            
+        </ul>
+        <!-- Pagination -->
+            {% if recent_transactions.has_other_pages %}
+            <div class="mt-4 flex justify-center space-x-2">
+                {% if recent_transactions.has_previous %}
+                <a 
+                    hx-get="{% url 'recent-transactions-pagination' %}?tx_page={{ recent_transactions.previous_page_number }}" class="px-3 py-1 border rounded hover:bg-gray-100 cursor-pointer"
+                    hx-target="#recent-transaction-container" hx-swap="outerHTML"
+                    hx-push-url=""
+                    hx-indicator="#rt-indicator">
+                    Previous
+                </a>
+                {% endif %}
+                <!-- Page Numbers (show up to 5) -->
+                {% for num in recent_transactions.paginator.page_range %}
+                {% if num >= recent_transactions.number|add:'-2' and num <= recent_transactions.number|add:'2' %}
+                <a
+                    hx-get="{% url 'recent-transactions-pagination' %}?tx_page={{ num }}"
+                    class="cursor-pointer px-3 py-1 border rounded text-sm {% if num == recent_transactions.number %}bg-blue-600 text-white{% else %}hover:bg-gray-100{% endif %}"
+                    hx-target="#recent-transaction-container" hx-swap="outerHTML"
+                    hx-indicator="#rt-indicator"
+                >
+                    {{ num }}
+                </a>
+                {% endif %}
+                {% endfor %}
+                {% if recent_transactions.has_next %}
+                <a 
+                    hx-get="{% url 'recent-transactions-pagination' %}?tx_page={{ recent_transactions.next_page_number }}" class="px-3 py-1 border rounded hover:bg-gray-100 cursor-pointer"
+                    hx-target="#recent-transaction-container" hx-swap="outerHTML"
+                    hx-indicator="#rt-indicator">
+                    Next
+                </a>
+                {% endif %}
+            </div>
+            {% endif %}
+           
+    </div>

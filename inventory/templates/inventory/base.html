@@ -1,4 +1,5 @@
 {% load static %}
+{% load django_htmx %}
 
 <!DOCTYPE html>
 <html lang="en">
@@ -11,6 +12,7 @@
     <!-- Simple styling (Bootstrap CDN for quick UI) -->
     <link href="{% static 'css/bootstrap.min.css' %}" rel="stylesheet">
     <link rel="stylesheet" href="{% static 'css/output.css' %}">
+    {% htmx_script %}
     
     <style>
         body {
@@ -23,11 +25,32 @@
             text-align: center;
             background-color: #f8f9fa;
         }
+        .htmx-indicator{
+            display:none;
+        }
+        .htmx-request .htmx-indicator{
+            display:flex;
+        }
+        .htmx-request.htmx-indicator{
+            display:flex;
+        }
+        .htmx-request .hide-button{
+          display:none;
+        }
+        .htmx-request.hide-button{
+            display:none;
+        }
+        .htmx-request .loading-display{
+          display: none;
+        }
+        .htmx-request.loading-display{
+            display: none;
+        }
     </style>
     
 </head>
 
-<body>
+<body hx-headers='{"x-csrftoken": "{{ csrf_token }}"}'>
 
   <!-- Navbar -->
 <nav class="fixed top-0 inset-x-0 bg-gray-900 text-white shadow-md z-50">

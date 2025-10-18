@@ -1,0 +1,67 @@
+{% load querystring_tags %}
+
+<!-- Low Stock -->
+    <div id="low-stock-container" class="bg-white rounded-xl shadow-md p-6 mb-6 border border-gray-200">
+        <h3 class="text-xl font-semibold mb-4 text-red-600">⚠️ Low Stock</h3>
+        <div id="lw-indicator" class="items-center justify-center align-middle htmx-indicator w-full h-64">
+            <div>
+                 <svg class="w-10 h-10 animate-spin text-blue-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" aria-hidden="true">
+                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"></path>
+                </svg>
+            </div>
+           
+        </div>
+        <ul id="lw-indicator" class="space-y-2 text-gray-700 loading-display">
+            {% for item in low_stock %}
+            <li class="p-3 bg-red-50 rounded-md">
+                <a href="{% url 'inventory-detail' item.pk %}">
+                <span class="flex justify-between items-center">
+                <span>{{ item.medicine.generic_name }} <span class="font-bold">{{ item.batch_number }}</span></span>
+                <span class="font-bold text-red-600">{{ item.quantity }} left</span>
+                </span>
+                </a>
+            </li>
+            
+            {% empty %}
+            <li class="text-gray-500">No low stock medicines</li>
+            {% endfor %}
+        </ul>
+
+         <!-- Pagination -->
+            {% if low_stock.has_other_pages %}
+            <div class="mt-4 flex justify-center space-x-2">
+                {% if low_stock.has_previous %}
+                <a
+                    hx-get="{% url 'low-stock-pagination' %}?low_page={{ low_stock.previous_page_number }}"
+                    hx-indicator="#lw-indicator"
+                    class="px-3 py-1 border rounded hover:bg-gray-100 cursor-pointer"
+                    hx-target="#low-stock-container" hx-swap="outerHTML"
+                    >Previous
+                </a>
+                {% endif %}
+                 <!-- Page Numbers (show up to 5) -->
+                {% for num in low_stock.paginator.page_range %}
+                {% if num >= low_stock.number|add:'-2' and num <= low_stock.number|add:'2' %}
+                <a
+                    hx-get="{% url 'low-stock-pagination' %}?low_page={{ num }}"
+                    hx-indicator="#lw-indicator"
+                    class="cursor-pointer px-3 py-1 border rounded text-sm {% if num == low_stock.number %}bg-blue-600 text-white{% else %}hover:bg-gray-100{% endif %}"
+                    hx-target="#low-stock-container" hx-swap="outerHTML"
+                >
+                    {{ num }}
+                </a>
+                {% endif %}
+                {% endfor %}
+                {% if low_stock.has_next %}
+                <a 
+                  hx-get="{% url 'low-stock-pagination' %}?low_page={{ low_stock.next_page_number }}"
+                  hx-indicator="#lw-indicator" 
+                  class="px-3 py-1 border rounded hover:bg-gray-100 cursor-pointer"
+                  hx-target="#low-stock-container" hx-swap="outerHTML"
+                  >Next
+                </a>
+                {% endif %}
+            </div>
+            {% endif %}
+    </div>

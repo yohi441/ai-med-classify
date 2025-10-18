@@ -72,3 +72,7 @@ dmypy.json
 
 # Pyre type checker
 .pyre/
+
+
+# MySql data directory
+mysql_data/

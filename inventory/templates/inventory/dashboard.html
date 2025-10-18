@@ -17,48 +17,12 @@
     </div>
 
     <!-- Low Stock -->
-    <div class="bg-white rounded-xl shadow-md p-6 mb-6 border border-gray-200">
-        <h3 class="text-xl font-semibold mb-4 text-red-600">⚠️ Low Stock</h3>
-        <ul class="space-y-2 text-gray-700">
-            {% for item in low_stock %}
-            <li class="flex justify-between items-center p-3 bg-red-50 rounded-md">
-                <span>{{ item.medicine.generic_name }}</span>
-                <span class="font-bold text-red-600">{{ item.quantity }} left</span>
-            </li>
-            {% empty %}
-            <li class="text-gray-500">No low stock medicines</li>
-            {% endfor %}
-        </ul>
-    </div>
+    {% include "inventory/partials/dashboard/low_stock_partials.html" %}
 
     <!-- Near Expiry -->
-    <div class="bg-white rounded-xl shadow-md p-6 mb-6 border border-gray-200">
-        <h3 class="text-xl font-semibold mb-4 text-yellow-600">⏳ Near Expiry</h3>
-        <ul class="space-y-2 text-gray-700">
-            {% for item in near_expiry %}
-            <li class="flex justify-between items-center p-3 bg-yellow-50 rounded-md">
-                <span>{{ item.medicine.generic_name }}</span>
-                <span class="font-bold text-yellow-600">Exp: {{ item.expiration_date }}</span>
-            </li>
-            {% empty %}
-            <li class="text-gray-500">No near-expiry medicines</li>
-            {% endfor %}
-        </ul>
-    </div>
+    {% include "inventory/partials/dashboard/near_expiry_partials.html" %}
 
     <!-- Recent Transactions -->
-    <div class="bg-white rounded-xl shadow-md p-6 border border-gray-200">
-        <h3 class="text-xl font-semibold mb-4 text-blue-600">🕑 Recent Transactions</h3>
-        <ul class="divide-y divide-gray-200">
-            {% for tx in recent_transactions %}
-            <li class="flex justify-between items-center py-3">
-                <span class="text-gray-700">{{ tx.medicine.generic_name }}</span>
-                <span class="text-sm text-gray-500">{{ tx.quantity_dispensed }} — {{ tx.transaction_date|date:"Y-m-d H:i" }}</span>
-            </li>
-            {% empty %}
-            <li class="py-3 text-gray-500">No transactions yet</li>
-            {% endfor %}
-        </ul>
-    </div>
+    {% include "inventory/partials/dashboard/recent_transaction_partials.html" %}
 </div>
 {% endblock %}
