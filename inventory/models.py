@@ -20,6 +20,12 @@ class Medicine(models.Model):
     manufacturer = models.CharField(max_length=255, blank=True)
     classification = models.ManyToManyField(Classification, related_name="medicines", blank=True)
 
+    intended_for = models.CharField(
+        max_length=20,
+        choices=[("adult", "Adult"), ("pediatric", "Pediatric"), ("both", "Both")],
+        default="both"
+    )
+
     def __str__(self):
         return f"{self.generic_name} ({self.brand_name})"
 

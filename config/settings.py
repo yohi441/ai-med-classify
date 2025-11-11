@@ -138,5 +138,5 @@ STATICFILES_DIRS = [
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-LOGIN_REDIRECT_URL = 'medicines-list'  # after login, go to medicines list
+LOGIN_REDIRECT_URL = 'dashboard'  # after login, go to medicines list
 LOGOUT_REDIRECT_URL = 'login'

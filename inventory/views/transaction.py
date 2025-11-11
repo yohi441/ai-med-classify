@@ -5,7 +5,7 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from inventory.models import Transaction
 from inventory.forms import TransactionForm
 from django.urls import reverse_lazy
-from django.db.models import Sum
+from django.db.models import Sum, Q
 from django.shortcuts import redirect, get_object_or_404
 from django.contrib import messages
 from datetime import datetime
@@ -15,14 +15,24 @@ class TransactionListView(LoginRequiredMixin, ListView):
     model = Transaction
     template_name = "inventory/transactions_list.html"
     context_object_name = "transactions"
-    paginate_by = 2
+    paginate_by = 10
     login_url = "login"
 
     def get_queryset(self):
-        return (
+        q = self.request.GET.get("q", "").strip()
+        queryset = (
             Transaction.objects.select_related("medicine", "user", "classification")
             .order_by("-transaction_date")  # newest first
         )
+        if q:
+            queryset = queryset.filter(
+                Q(transaction_date__icontains=q) |
+                Q(medicine__generic_name__icontains=q) |
+                Q(quantity_dispensed__icontains=q) |
+                Q(user__username__icontains=q)
+            )
+
+        return queryset
     
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -39,8 +49,10 @@ class TransactionCreateView(LoginRequiredMixin, CreateView):
     def form_valid(self, form):
         form.instance.user = self.request.user  # assign logged-in pharmacist
         response = super().form_valid(form)
-        if self.object.status == 'dispensed':
-            self.object.dispense()
+        self.object.status = "dispensed"  # automatic approval and dispense
+        self.object.save() # automatic dispense upon creation
+        self.object.dispense()  # this change was made by the advisor
+                         
 
         return response
     
