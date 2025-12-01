@@ -1,0 +1,72 @@
+{% extends "inventory/base.html" %}
+{% block content %}
+<div class="min-h-screen">
+<h1>Batch Transactions</h1>
+{% if errors %}
+<div x-data="{ open: true }" x-show="open" x-init="setTimeout(() => open = false, 3000)" class="z-50 bg-red-50 border border-red-400 text-red-700 px-4 py-3 rounded relative mb-4">
+    <ul class="list-disc list-inside">
+        {% for error in errors %}
+        <li>{{ error }}</li>
+        {% endfor %}
+    </ul>
+</div>
+{% endif %}
+<form method="post" x-data="batchTransactions()" x-init="initFormset()">
+    {% csrf_token %}
+    <table class="table-auto border w-full">
+        <thead>
+            <tr>
+                <th class="border px-2 py-1">Medicine</th>
+                <th class="border px-2 py-1">Quantity</th>
+                <th class="border px-2 py-1">Dosage</th>
+                <th class="border px-2 py-1">Remarks</th>
+                <th class="border px-2 py-1">Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            <template x-for="(row, index) in rows" :key="index">
+                <tr>
+                    <td class="border">
+                        <select :name="`form-${index}-medicine`" x-model="row.medicine_id" class="w-full border-0 px-1 py-1 pl-3">
+                            <option value="">Select Medicine</option>
+                            {% for med in medicines %}
+                            <option value="{{ med.id }}">{{ med.generic_name }} ({{ med.brand_name }})</option>
+                            {% endfor %}
+                        </select>
+                    </td>
+                    <td class="border">
+                        <input type="number" min="1" :name="`form-${index}-quantity_dispensed`" x-model="row.quantity" class="w-full pl-3 border-none px-1 py-1" />
+                    </td>
+                    <td class="border">
+                        <select :name="`form-${index}-dosage`" x-model="row.dosage_id" class="w-full pl-3 border-none px-1 py-1">
+                            <option value="">Select Dosage</option>
+                            {% for dos in dosage %}
+                            <option value="{{ dos.id }}">{{ dos.label }}</option>
+                            {% endfor %}
+                        </select>
+                    </td>
+                    <td class="border">
+                        <input type="text" :name="`form-${index}-remarks`" x-model="row.remarks" class="w-full border-none px-1 py-1" />
+                    </td>
+                    <td class="border bg-red-500 cursor-pointer">
+                        <button type="button" @click="removeRow(index)" class="cursor-pointer w-full px-2 py-1 text-white rounded">❌ Remove</button>
+                    </td>
+                </tr>
+            </template>
+        </tbody>
+    </table>
+
+    <input type="hidden" name="form-TOTAL_FORMS" :value="rows.length">
+    <input type="hidden" name="form-INITIAL_FORMS" value="{{initial_form}}">
+    <input type="hidden" name="form-MIN_NUM_FORMS" value="0">
+    <input type="hidden" name="form-MAX_NUM_FORMS" value="1000">
+
+    <div class="mt-2">
+        <button type="button" @click="addRow()" class="bg-blue-500 text-white px-4 py-2 rounded">➕ Add Row</button>
+        <button type="submit" class="bg-green-500 text-white px-4 py-2 rounded">💾 Save All</button>
+    </div>
+</form>
+
+
+</div>
+{% endblock %}

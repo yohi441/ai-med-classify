@@ -2,6 +2,7 @@ from django import forms
 
 from .models import Transaction, Medicine
 from django.db.models import Sum
+from django.forms import modelformset_factory
 
 class MedicineClassificationForm(forms.Form):
     input_text = forms.CharField(
@@ -20,9 +21,10 @@ class MedicineClassificationForm(forms.Form):
 
 
 class TransactionForm(forms.ModelForm):
+  
     class Meta:
         model = Transaction
-        fields = ["medicine", "quantity_dispensed", "remarks"]
+        fields = ["medicine", "quantity_dispensed", "dosage", "remarks"]
         widgets = {
             "medicine": forms.Select(attrs={
                 "class": "cursor-pointer w-full border rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
@@ -30,9 +32,9 @@ class TransactionForm(forms.ModelForm):
             "quantity_dispensed": forms.NumberInput(attrs={
                 "class": "w-full border rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
             }),
-            # "status": forms.Select(attrs={
-            #     "class": "cursor-pointer w-full border rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-            # }),
+           "dosage": forms.Select(attrs={
+                "class": "cursor-pointer w-full border rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500",
+            }),
             "remarks": forms.Textarea(attrs={
                 "rows": 3,
                 "class": "w-full border rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
@@ -47,6 +49,7 @@ class TransactionForm(forms.ModelForm):
             .filter(total_stock__gt=0)
         )
         self.fields["medicine"].queryset = medicines_with_stock
+        self.fields["dosage"].required = True
 
     def clean(self):
         cleaned_data = super().clean()
@@ -61,3 +64,11 @@ class TransactionForm(forms.ModelForm):
                 self.add_error("quantity_dispensed", f"Not enough stock. Available: {total_stock}")
 
         return cleaned_data
+    
+
+TransactionFormSet = modelformset_factory(
+    Transaction,
+    form=TransactionForm,
+    extra=0,
+    can_delete=True  # allows deleting rows
+)

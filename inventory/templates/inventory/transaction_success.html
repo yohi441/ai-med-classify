@@ -1,0 +1,55 @@
+{% extends "inventory/base.html" %}
+
+{% block content %}
+<style>
+@media print {
+    body {
+        margin: 0;
+        padding: 0;
+    }
+    body * {
+        visibility: hidden;
+    
+    }
+    #print-area, #print-area * {
+        visibility: visible;
+    }
+    #print-area {
+        position: absolute;
+        left: 0;
+        top: 0;
+        width: 100%;
+        margin: 0;
+        padding: 20px;
+    }
+}
+</style>
+<div class="min-h-screen">
+    <div>
+        <button class="bg-blue-500 px-2 py-2 rounded-md">
+            <a href="{% url 'transaction-list' %}" class="text-white hover:text-white flex items-center">
+                ⬅ Back to Transactions 
+            </a>
+        </button>
+    </div>
+    <div
+        id="print-area" 
+        class="mt-10 max-w-2xl mx-auto bg-white rounded-lg p-6"
+    >
+        <div class="border-t-gray-500 py-2 border border-b-gray-500 border-r-0 border-l-0">
+            
+            <p>Medicine: {{transaction.medicine}}</p>
+            <p>Quantity: {{transaction.quantity_dispensed}}</p>
+            <p>Dosage: {{transaction.dosage}}</p>
+            <p>Remarks: {{transaction.remarks}}</p>
+            <p>Date: {{transaction.created_at}}</p>
+        </div>
+    </div>
+    <div class="mt-5 max-w-2xl mx-auto flex justify-end">
+        <button class="cursor-pointer bg-blue-500 px-2 text-white font-semibold py-2 rounded-md" onclick="window.print()">🖨 Print</button>
+    </div>
+
+</div>
+
+
+{% endblock %}

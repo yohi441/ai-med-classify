@@ -1,5 +1,13 @@
 from django.contrib import admin
-from inventory.models import Classification, Medicine, Inventory, Transaction, AuditLog
+from inventory.models import (
+    Classification, 
+    Medicine, 
+    Inventory, 
+    Transaction, 
+    AuditLog, 
+    TransactionBatch,
+    DosageInstruction
+)
 
 
 admin.site.site_title = "AI Med Classify Admin"
@@ -34,6 +42,14 @@ class TransactionAdmin(admin.ModelAdmin):
     list_display = ("medicine", "user", "quantity_dispensed", "status", "transaction_date")
     search_fields = ("medicine__generic_name", "user__username")
     list_filter = ("status", "transaction_date")
+
+@admin.register(TransactionBatch)
+class TransactionBatchAdmin(admin.ModelAdmin):
+    pass
+
+@admin.register(DosageInstruction)
+class DosageInstructionAdmin(admin.ModelAdmin):
+    pass
 
 from django.contrib.auth.models import Group
 

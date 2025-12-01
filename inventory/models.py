@@ -43,8 +43,37 @@ class Inventory(models.Model):
     class Meta:
         verbose_name_plural = "Inventories"
 
+
+class TransactionBatch(models.Model):
+    batch_id = models.CharField(max_length=30, primary_key=True)
+    user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    remarks = models.TextField(blank=True)
+
+    def __str__(self):
+        return f"Batch {self.batch_id}"
+
+    @staticmethod
+    def generate_batch_id():
+        from django.utils import timezone
+        return "TX" + timezone.now().strftime("%Y%m%d%H%M%S")
+
 class Transaction(models.Model):
     user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True)
+    batch = models.ForeignKey(
+        TransactionBatch,
+        on_delete=models.CASCADE,
+        related_name="transactions",
+        null=True,
+        blank=True
+    )
+    dosage = models.ForeignKey(
+        'DosageInstruction',
+        on_delete=models.PROTECT,
+        null=True,
+        blank=True,
+        related_name="transactions"
+    )
     medicine = models.ForeignKey(Medicine, on_delete=models.CASCADE, related_name="transactions")
     quantity_dispensed = models.PositiveIntegerField()
     transaction_date = models.DateTimeField(auto_now_add=True)
@@ -69,6 +98,7 @@ class Transaction(models.Model):
     request_id = models.CharField(max_length=100, blank=True, null=True) #NOSONAR
     stock_before = models.PositiveIntegerField(null=True, blank=True)
     stock_after = models.PositiveIntegerField(null=True, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
         return f"{self.quantity_dispensed} of {self.medicine} by {self.user}"
@@ -109,6 +139,7 @@ class Transaction(models.Model):
         self.stock_after = remaining
         self.save()
 
+
 class AuditLog(models.Model):
     user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, related_name="audit_log")
     action_type = models.CharField(max_length=100)
@@ -116,3 +147,10 @@ class AuditLog(models.Model):
 
     def __str__(self):
         return f"{self.user} - {self.action_type} @ {self.timestamp}"
+    
+class DosageInstruction(models.Model):
+    key = models.CharField(max_length=50, unique=True)  # e.g., 'once_daily', 'twice_daily', 'three_times_daily'
+    label = models.CharField(max_length=100)            # e.g., 'Once a day', 'Twice a day', 'Three times a day'
+
+    def __str__(self):
+        return self.label

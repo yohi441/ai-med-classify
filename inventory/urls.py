@@ -5,7 +5,15 @@ from inventory.views.classification import MedicineClassificationView
 from inventory.views.dashboard import DashboardView, low_stock_pagination, near_expiry_pagination, recent_transactions_pagination    
 from inventory.views.medicine import MedicineDetailView, MedicineListView
 from inventory.views.inventory import InventoryListView, InventoryDetailView
-from inventory.views.transaction import TransactionListView, TransactionCreateView, TransactionDetailView, TransactionStatusUpdateView
+from inventory.views.transaction import (
+    TransactionListView, 
+    TransactionCreateView, 
+    TransactionDetailView, 
+    TransactionStatusUpdateView, 
+    TransactionCreateMultipleView,
+    TransactionSuccessView,
+    TransactionSuccessMultipleView
+)
 from django.contrib.auth import views as auth_views
 
 urlpatterns = [
@@ -19,6 +27,9 @@ urlpatterns = [
     path("transaction/new/", TransactionCreateView.as_view(), name="transaction-create"),
     path("transaction/<int:pk>/", TransactionDetailView.as_view(), name="transaction-detail"),
     path("transactions/<int:pk>/status/", TransactionStatusUpdateView.as_view(), name="transaction-status-update"),
+    path("transaction/create/multiple/", TransactionCreateMultipleView.as_view(), name='transaction-create-multiple'),
+    path("transaction/success/single/<int:pk>/", TransactionSuccessView.as_view(), name='transaction-success'),
+    path("transaction/success/multiple/<str:pk>/", TransactionSuccessMultipleView.as_view(), name='transaction-success-multiple'),
 
 
     # HTMX
