@@ -2,6 +2,23 @@ from django.db import models
 from django.contrib.auth.models import User
 from django.db.models import Sum
 from django.db import transaction
+from django.utils import timezone
+
+class NotExpiredManager(models.Manager):
+
+    def get_queryset(self):
+        """Default: return only items that are NOT expired."""
+        today = timezone.now().date()
+        return super().get_queryset().filter(expiration_date__gte=today)
+
+    def all_items(self):
+        """Return ALL items including expired ones."""
+        return super().get_queryset()
+
+    def expired(self):
+        """Return ONLY expired items."""
+        today = timezone.now().date()
+        return super().get_queryset().filter(expiration_date__lt=today)
 
 class Classification(models.Model):
     label = models.CharField(max_length=100)
@@ -27,7 +44,7 @@ class Medicine(models.Model):
     )
 
     def __str__(self):
-        return f"{self.generic_name} ({self.brand_name})"
+        return f"{self.generic_name} ({self.brand_name}) - ({self.intended_for.capitalize()})"
 
 class Inventory(models.Model):
     medicine = models.ForeignKey(Medicine, on_delete=models.CASCADE, related_name="inventory")
@@ -42,6 +59,8 @@ class Inventory(models.Model):
     
     class Meta:
         verbose_name_plural = "Inventories"
+
+    objects = NotExpiredManager()
 
 
 class TransactionBatch(models.Model):

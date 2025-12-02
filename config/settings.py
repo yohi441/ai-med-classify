@@ -12,6 +12,7 @@ https://docs.djangoproject.com/en/5.2/ref/settings/
 
 from pathlib import Path
 import os
+from django.contrib.messages import constants as messages
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -44,6 +45,7 @@ INSTALLED_APPS = [
 
     #3rd party
     'django_htmx',
+    'django_select2',
 ]
 
 
@@ -122,6 +124,14 @@ TIME_ZONE = 'Asia/Manila'
 USE_I18N = True
 
 USE_TZ = True
+
+MESSAGE_TAGS = {
+    messages.DEBUG: 'bg-gray-200 text-gray-800',
+    messages.INFO: 'bg-blue-200 text-blue-800',
+    messages.SUCCESS: 'bg-green-500 text-white',
+    messages.WARNING: 'bg-yellow-200 text-yellow-800',
+    messages.ERROR: 'bg-red-500 text-white',
+}
 
 
 # Static files (CSS, JavaScript, Images)

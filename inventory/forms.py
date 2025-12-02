@@ -3,6 +3,7 @@ from django import forms
 from .models import Transaction, Medicine
 from django.db.models import Sum
 from django.forms import modelformset_factory
+from django_select2 import forms as s2forms
 
 class MedicineClassificationForm(forms.Form):
     input_text = forms.CharField(
@@ -21,12 +22,13 @@ class MedicineClassificationForm(forms.Form):
 
 
 class TransactionForm(forms.ModelForm):
-  
+
     class Meta:
         model = Transaction
         fields = ["medicine", "quantity_dispensed", "dosage", "remarks"]
         widgets = {
             "medicine": forms.Select(attrs={
+                "id": "medicine-select",
                 "class": "cursor-pointer w-full border rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
             }),
             "quantity_dispensed": forms.NumberInput(attrs={
@@ -43,12 +45,6 @@ class TransactionForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        # Only include medicines that have stock > 0
-        medicines_with_stock = (
-            Medicine.objects.annotate(total_stock=Sum("inventory__quantity"))
-            .filter(total_stock__gt=0)
-        )
-        self.fields["medicine"].queryset = medicines_with_stock
         self.fields["dosage"].required = True
 
     def clean(self):

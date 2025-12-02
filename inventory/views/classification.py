@@ -71,3 +71,35 @@ class MedicineClassificationView(LoginRequiredMixin, View):
             print("HTMX request detected.")
             return render(request, 'inventory/partials/classify/form_partials.html', context)
         return render(request, self.template_name, context)
+    
+
+from django.shortcuts import render
+from ai.classifier import ai_inventory_search
+
+def inventory_search_view(request):
+    query = request.GET.get("q", "")
+    results = []
+    inventory = []
+    if query:
+        search_results = ai_inventory_search(query, top_k=10)
+        
+        # search_results is a list of (score, Inventory) tuples
+        for score, inv in search_results:
+            inventory.append((inv, round(score * 100, 2)))
+            results.append({
+                "score": round(score * 100, 2),
+                "medicine_name": inv.medicine.generic_name,
+                "brand_name": inv.medicine.brand_name,
+                "dosage_form": inv.medicine.dosage_form,
+                "strength": inv.medicine.strength,
+                "batch_number": inv.batch_number,
+                "quantity": inv.quantity,
+                "expiration_date": inv.expiration_date,
+                "manufacturer": inv.medicine.manufacturer,
+            })
+    print(inventory)
+    return render(request, "inventory/classify.html", {
+        "query": query,
+        "results": results,
+        "inventory": inventory,
+    })

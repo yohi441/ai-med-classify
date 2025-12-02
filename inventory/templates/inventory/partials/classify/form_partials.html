@@ -2,8 +2,13 @@
 <div>
     <h2 class="text-2xl font-bold  mb-6 text-blue-600">💊 AI Medicine Classification</h2>
     <!-- Classification Form -->
-    <form hx-post="{% url 'classify' %}" hx-target="#classify_form" class="space-y-4">
-        {% csrf_token %}
+    <form action="{% url 'inventory-search-view' %}" class="space-y-4" method="get">
+        <input type="text" name="q" 
+            class='w-full py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm resize-none'
+            rows="3" cols="40"
+            placeholder='e.g. paracetamol tablet 500mg',
+        >
+        </input>
         <div class="space-y-4">
             {% for field in form %}
             <div>
@@ -34,54 +39,71 @@
         </button>
     </form>
 
-    {% if ai %}
+ 
     <div class="mt-8 border-t pt-6">
         <h3 class="text-xl font-semibold text-gray-800">📊 Result</h3>
-        <p class="mt-2 text-gray-700">
-            <strong>Predicted Category:</strong> 
-            <span class="font-medium text-green-700">{{ ai.label }}</span> 
-            ({{ ai.score }}%)
-        </p>
-
-        <!-- Confidence Breakdown -->
-        <div class="mt-4">
-            <h4 class="text-lg font-medium text-gray-700 mb-2">Confidence Breakdown</h4>
-            <ul class="list-disc list-inside text-gray-600 space-y-1">
-                {% for label, score in ai.all %}
-                <li><span class="font-semibold">{{ label }}</span> → {{ score }}%</li>
-                {% endfor %}
-            </ul>
-        </div>
+        
 
         <!-- Medicines Match -->
         <div class="mt-6 w-full">
             <h4 class="text-lg font-medium text-gray-700 mb-2">Matched Medicines in Inventory</h4>
             <!--column-->
             <div class="flex justify-between space-x-2">
-                {% if medicines %}
+                {% if inventory %}
                 <div class="w-1/2">
                     <h3 class="text-xl font-semibold text-blue-800 mb-2">⚥ Adult</h3>
                     <ul class="divide-y divide-gray-200 border rounded-lg">
-                        {% for med in medicines %}
-                        {% if med.intended_for == 'adult' or med.intended_for == 'both' %}
+                        {% for i, score in inventory %}
+                        {% if i.medicine.intended_for == 'adult' or i.medicine.intended_for == 'both' %}
                         <li class="flex justify-between items-center p-3">
                             <div>
-                                <p class="font-medium text-gray-800">
-                                    {{ med.generic_name }} ({{ med.brand_name }})
+                                <p class="font-medium text-gray-800 mb-2">
+                                    💊  {{ i.medicine.generic_name }} ({{ i.medicine.brand_name }})
                                 </p>
-                                <p class="text-sm text-gray-600">
-                                    {{ med.dosage_form }} {{ med.strength }}
+                                                               <p class="flex items-center gap-2 mb-2">
+                                <span class="inline-flex items-center justify-center w-8 h-8 rounded-lg bg-teal-100 text-teal-600">
+                                    🟦
+                                </span>
+                                <span class="text-slate-800 text-sm">
+                                    {{ i.medicine.dosage_form }} <span class="font-semibold">{{ i.medicine.strength }}</span>
+                                </span>
                                 </p>
-                                {% if med.total_stock > 0 %}
-                                <p class="text-sm text-green-600">✅ Stock: {{ med.total_stock }}</p>
+
+                                <p class="flex items-center gap-2 mb-2">
+                                <span class="inline-flex items-center justify-center w-8 h-8 rounded-lg bg-slate-100 text-slate-700">
+                                    🏷️
+                                </span>
+                                <span class="text-slate-600 text-sm">
+                                    Batch no: <span class="font-semibold text-slate-800">{{i.batch_number}}</span>
+                                </span>
+                                </p>
+
+                                <p class="flex items-center gap-2 mb-2">
+                                <span class="inline-flex items-center justify-center w-8 h-8 rounded-lg bg-amber-100 text-amber-600">
+                                    ⚠️
+                                </span>
+                                <span class="text-amber-800 text-sm font-semibold px-3 py-1 bg-amber-50 rounded-lg">
+                                    AI score: {{ score }}
+                                </span>
+                                </p>
+                                {% if i.quantity > 0 %}
+                                <p class="text-sm text-green-600">
+                                    <span class="inline-flex items-center justify-center w-8 h-8 rounded-lg bg-green-100 text-green-600">
+                                    ✅
+                                    </span>
+                                    <span class="text-green-800 text-sm font-semibold px-3 py-1 bg-green-50 rounded-lg">
+                                        Stock: {{ i.quantity }}
+                                    </span>
+                                     
+                                </p>
                                 {% else %}
                                 <p class="text-sm text-red-600">⚠️ No stock available</p>
                                 {% endif %}
                             </div>
-                            {% if med.total_stock > 0 %}
-                            <a href="{% url 'transaction-create' %}?medicine={{ med.id }}" 
+                            {% if i.quantity > 0 %}
+                            <a href="{% url 'transaction-create' %}?medicine={{ i.medicine.id }}" 
                             class="px-3 py-1 bg-green-600 text-white rounded-md hover:bg-green-700 text-sm">
-                                Dispense
+                                Add to orders
                             </a>
                             {% endif %}
                         </li>
@@ -92,26 +114,57 @@
                 <div class="w-1/2">
                     <h3 class="text-xl font-semibold text-blue-800 mb-2">👶 Pediatric</h3>
                     <ul class="divide-y divide-gray-200 border rounded-lg">
-                        {% for med in medicines %}
-                        {% if med.intended_for == 'pediatric' or med.intended_for == 'both' %}
+                        {% for i, score in inventory %}
+                        {% if i.medicine.intended_for == 'pediatric' or i.medicine.intended_for == 'both' %}
                         <li class="flex justify-between items-center p-3">
                             <div>
-                                <p class="font-medium text-gray-800">
-                                    {{ med.generic_name }} ({{ med.brand_name }})
+                                <p class="font-medium text-gray-800 mb-2">
+                                    💊 {{ i.medicine.generic_name }} ({{ i.medicine.brand_name }})
                                 </p>
-                                <p class="text-sm text-gray-600">
-                                    {{ med.dosage_form }} {{ med.strength }}
+                                <p class="flex items-center gap-2 mb-2">
+                                <span class="inline-flex items-center justify-center w-8 h-8 rounded-lg bg-teal-100 text-teal-600">
+                                    🟦
+                                </span>
+                                <span class="text-slate-800 text-sm">
+                                    {{ i.medicine.dosage_form }} <span class="font-semibold">{{ i.medicine.strength }}</span>
+                                </span>
                                 </p>
-                                {% if med.total_stock > 0 %}
-                                <p class="text-sm text-green-600">✅ Stock: {{ med.total_stock }}</p>
+
+                                <p class="flex items-center gap-2 mb-2">
+                                <span class="inline-flex items-center justify-center w-8 h-8 rounded-lg bg-slate-100 text-slate-700">
+                                    🏷️
+                                </span>
+                                <span class="text-slate-600 text-sm">
+                                    Batch no: <span class="font-semibold text-slate-800">{{i.batch_number}}</span>
+                                </span>
+                                </p>
+
+                                <p class="flex items-center gap-2 mb-2">
+                                <span class="inline-flex items-center justify-center w-8 h-8 rounded-lg bg-amber-100 text-amber-600">
+                                    ⚠️
+                                </span>
+                                <span class="text-amber-800 text-sm font-semibold px-3 py-1 bg-amber-50 rounded-lg">
+                                    AI score: {{ score }}
+                                </span>
+                                </p>
+                                {% if i.quantity > 0 %}
+                                <p class="text-sm text-green-600">
+                                    <span class="inline-flex items-center justify-center w-8 h-8 rounded-lg bg-green-100 text-green-600">
+                                    ✅
+                                    </span>
+                                    <span class="text-green-800 text-sm font-semibold px-3 py-1 bg-green-50 rounded-lg">
+                                        Stock: {{ i.quantity }}
+                                    </span>
+                                     
+                                </p>
                                 {% else %}
                                 <p class="text-sm text-red-600">⚠️ No stock available</p>
                                 {% endif %}
                             </div>
-                            {% if med.total_stock > 0 %}
-                            <a href="{% url 'transaction-create' %}?medicine={{ med.id }}" 
+                            {% if i.quantity > 0 %}
+                            <a href="{% url 'transaction-create' %}?medicine={{ i.medicine.id }}" 
                             class="px-3 py-1 bg-green-600 text-white rounded-md hover:bg-green-700 text-sm">
-                                Dispense
+                                Add to orders
                             </a>
                             {% endif %}
                         </li>
@@ -128,5 +181,5 @@
             
         </div>
     </div>
-    {% endif %}
+   
 </div>

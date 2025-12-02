@@ -19,7 +19,6 @@
         <th class="px-4 py-3">Dosage Form</th>
         <th class="px-4 py-3">Strength</th>
         <th class="px-4 py-3">Manufacturer</th>
-        <th class="px-4 py-3">Classification</th>
         <th class="px-4 py-3">Stock</th>
         <th class="px-4 py-3"></th>
       </tr>
@@ -32,13 +31,6 @@
         <td class="px-4 py-2">{{ medicine.dosage_form }}</td>
         <td class="px-4 py-2">{{ medicine.strength }}</td>
         <td class="px-4 py-2">{{ medicine.manufacturer }}</td>
-        <td class="px-4 py-2">
-          {% if medicine.classification %}
-          {{ medicine.classification.label }}
-          {% else %}
-          <span class="text-gray-400 italic">Unclassified</span>
-          {% endif %}
-        </td>
         <td class="px-4 py-2">
           {{ medicine.total_stock|default:0 }}
         </td>

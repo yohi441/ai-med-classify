@@ -1,0 +1,30 @@
+<div x-data="{ open: true }" class="z-50" x-show="open" x-init="setTimeout(() => open = false, 2000)" x-cloak>
+    {% if messages %}
+    <ul class="mb-3 shadow fixed top-1 right-1 z-50">
+    {% for message in messages %}
+    <li{% if message.tags %} class="{{ message.tags }} py-2 px-3 rounded-md h-16 flex items-center"{% endif %}>
+        <span>
+            <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="28"
+                height="28"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                class="mr-3 text-white"
+                >
+                <path d="M12 12m-9 0a9 9 0 1 0 18 0a9 9 0 1 0 -18 0" />
+                <path d="M12 9v4" />
+                <path d="M12 16v.01" />
+            </svg>
+        </span>
+        
+        <span class="text-white font-semibold">{{ message }}</span>
+    </li>
+    {% endfor %}
+    </ul>
+    {% endif %}
+</div>

@@ -1,0 +1,71 @@
+{% extends 'inventory/base.html' %}
+
+{% block content %}
+<div>
+    <div class="flex justify-between items-center mb-5">
+        <div>
+            <a href="{% url 'transaction-create' %}">
+            <button type="submit" class="cursor-pointer w-full bg-blue-600 text-white py-2 px-4 rounded-lg hover:bg-blue-700 focus:ring-2 focus:ring-blue-400 transition">
+                Add orders
+            </button>
+            </a>
+        </div>
+        <div class="flex space-x-3">
+            <form action="{% url 'transaction-list-forms' %}" method="post">
+                {% csrf_token %}
+                <input name="clear-order" hidden type="text" value="clear-order">
+                <button type="submit" class="cursor-pointer w-full bg-red-600 text-white py-2 px-4 rounded-lg hover:bg-red-700 focus:ring-2 focus:ring-red-400 transition">
+                    Clear Orders
+                </button>
+            </form>
+            <form action="{% url 'transaction-list-forms' %}" method="post">
+                {% csrf_token %}
+                <input name="complete-order" hidden type="text" value="complete-order">
+                <button type="submit" class="cursor-pointer w-full bg-blue-600 text-white py-2 px-4 rounded-lg hover:bg-blue-700 focus:ring-2 focus:ring-blue-400 transition">
+                    Complete Orders
+                </button>
+            </form>
+        </div>
+       
+    </div>
+    <div>
+        <table class="w-full text-sm text-left text-gray-600">
+        <thead class="bg-gray-100 text-gray-800 uppercase text-xs font-semibold">
+        <tr>
+            <th class="px-4 py-3">Medicine</th>
+            <th class="px-4 py-3">Quantity Dispensed</th>
+            <th class="px-4 py-3">Dosage</th>
+            <th class="px-4 py-3">Remarks</th>
+
+            <th class="px-4 py-3"></th>
+        </tr>
+        </thead>
+        <tbody>
+        {% for transaction in transactions %}
+        <tr class="border-b hover:bg-gray-50">
+            <td class="px-4 py-2">{{ transaction.medicine }}</td>
+            <td class="px-4 py-2">{{ transaction.quantity_dispensed }}</td>
+            <td class="px-4 py-2">{{ transaction.dosage }}</td>
+            <td class="px-4 py-2">{% if transaction.remarks %}{{ transaction.remarks }}{% else %}None{% endif %}</td>
+            <td class="px-4 py-2 flex justify-end">
+                <form action="{% url 'transaction-list-forms' %}" method="post">
+                    {% csrf_token %}
+                    <input name="remove_id" type="text" hidden value="{{transaction.id}}">
+                    <button
+                        class="inline-block px-3 py-1 text-sm text-white bg-red-600 rounded hover:bg-red-700">remove
+                    </button>
+                </form>
+            </td>
+        </tr>
+        {% empty %}
+        <tr>
+            <td colspan="8" class="px-4 py-4 text-center text-gray-500">No medicines found.</td>
+        </tr>
+        {% endfor %}
+        </tbody>
+        </table>
+    </div>
+</div>
+
+
+{% endblock %}

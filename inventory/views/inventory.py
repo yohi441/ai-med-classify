@@ -42,6 +42,9 @@ class InventoryDetailView(LoginRequiredMixin, DetailView):
     context_object_name = "inventory"
     login_url = "login"
 
+    def get_queryset(self):
+        return Inventory.objects.all_items()
+
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         batch = self.object

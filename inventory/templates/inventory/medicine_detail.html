@@ -12,14 +12,6 @@
   <p><span class="font-semibold">Dosage Form:</span> {{ medicine.dosage_form }}</p>
   <p><span class="font-semibold">Strength:</span> {{ medicine.strength }}</p>
   <p><span class="font-semibold">Manufacturer:</span> {{ medicine.manufacturer }}</p>
-  <p>
-    <span class="font-semibold">Classification:</span>
-    {% if medicine.classification %}
-      {{ medicine.classification.label }}
-    {% else %}
-      <span class="text-gray-400 italic">Unclassified</span>
-    {% endif %}
-  </p>
 </div>
 
 <h3 class="text-xl font-semibold mb-3 text-blue-600">📦 Inventory Batches</h3>

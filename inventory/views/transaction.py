@@ -15,6 +15,10 @@ from inventory.forms import TransactionForm, TransactionFormSet
 from django.forms import modelformset_factory
 from django.db import transaction as db_transaction
 from django.urls import reverse
+from django.contrib.auth import get_user_model
+import uuid
+
+User = get_user_model()
 
 
 
@@ -47,28 +51,57 @@ class TransactionListView(LoginRequiredMixin, ListView):
         context["now"] = datetime.now()
         return context
     
-class TransactionCreateView(LoginRequiredMixin, CreateView):
+class TransactionCreateView(LoginRequiredMixin, View):
     model = Transaction
     form_class = TransactionForm
     template_name = "inventory/transaction_form.html"
     login_url = "login"
 
-    def form_valid(self, form):
-        form.instance.user = self.request.user  # assign logged-in pharmacist
-        response = super().form_valid(form)
-        self.object.status = "dispensed"  # automatic approval and dispense
-        self.object.save() # automatic dispense upon creation
-        self.object.dispense()  # this change was made by the advisor
-                         
-
-        return response
+    def get(self, request):
+        form = TransactionForm(initial={"medicine": request.GET.get("medicine")})
+        
+        transactions = request.session.get('transactions', [])
+        context = {
+            "form": form,
+            "total_count": len(transactions)
+        }
+        return render(request, self.template_name, context)
     
-    def get_initial(self):
-        initial = super().get_initial()
-        medicine_id = self.request.GET.get("medicine")
-        if medicine_id:
-            initial["medicine"] = medicine_id
-        return initial
+    
+    def post(self, request):
+        transactions = request.session.get('transactions', [])
+        form = TransactionForm(request.POST)
+        if form.is_valid():
+            obj = form.save(commit=False)
+            obj.user = request.user
+            transactions.append(
+                {
+                    "id": str(uuid.uuid4()),
+                    "user": obj.user.id,
+                    "medicine": obj.medicine.id,
+                    "quantity_dispensed": obj.quantity_dispensed,
+                    "dosage": obj.dosage.id,
+                    "remarks": obj.remarks
+                }
+            )
+            messages.success(request, "Added successfully")
+            request.session["transactions"] = transactions
+            print(request.session["transactions"])
+            form = TransactionForm()  # return a fresh empty form
+            context = {
+                "form": form,
+                "total_count": len(transactions)
+            }
+           
+            return render(request, self.template_name, context)
+        
+        context = {
+            "form": form,
+            "total_count": len(transactions)
+        }
+            
+        return render(request, self.template_name, context)
+
     
     def get_success_url(self):
         return reverse("transaction-detail", kwargs={"pk": self.object.pk})
@@ -217,3 +250,108 @@ class TransactionSuccessMultipleView(LoginRequiredMixin, View):
         }
         print(transaction_items)
         return render(request, self.template_name, context)
+    
+class TransactionItemsListView(LoginRequiredMixin, View):
+    template_name = 'inventory/transaction_form_list.html'
+    def get(self, request):
+        transaction_list = request.session.get("transactions", [])
+        update_transaction_list = []
+
+
+        for transaction in transaction_list:
+            user = User.objects.get(pk=transaction.get("user"))
+            medicine = Medicine.objects.get(pk=transaction.get("medicine"))
+            dosage = DosageInstruction.objects.get(pk=transaction.get("dosage"))
+            update_transaction_list.append(
+                {
+                    "id": transaction.get("id"),
+                    "user": user,
+                    "medicine": medicine,
+                    "quantity_dispensed": transaction.get("quantity_dispensed"),
+                    "dosage": dosage,
+                    "remarks": transaction.get("remarks", "None")
+                }
+            )
+        
+        context = {
+            "transactions": update_transaction_list,
+            "total_count": len(transaction_list)
+        }
+        
+        return render(request, self.template_name, context)
+    
+    def post(self, request):
+        transaction_list = request.session.get("transactions", [])
+        clear_order = request.POST.get("clear-order", "")
+        complete_order = request.POST.get("complete-order", "")
+        remove_id = request.POST.get("remove_id", "")
+        context = {
+                "transactions": transaction_list,
+                "total_count": len(transaction_list)
+        }
+
+        
+        if clear_order == "clear-order":
+            request.session["transactions"] = []
+            messages.success(request, 'Clear orders successfully')
+
+            return redirect('transaction-list-forms')
+        
+        if complete_order == "complete-order":
+            if not transaction_list:
+                messages.error(request, 'Empty orders')
+                return redirect('transaction-list-forms')
+            #[{'id': 'c9351969-ea58-41b2-8ad1-49be9b31f881', 'user': 1, 'medicine': 105, 'quantity_dispensed': 12, 'dosage': 2, 'remarks': ''}, 
+            # {'id': '1c30cdf1-cd47-4687-a2b0-618ab663857c', 'user': 1, 'medicine': 196, 'quantity_dispensed': 23, 'dosage': 2, 'remarks': ''}, 
+            # {'id': 'c76ed743-2f84-47f4-8f14-4e3233846026', 'user': 1, 'medicine': 106, 'quantity_dispensed': 12, 'dosage': 2, 'remarks': ''}]
+            try:
+                with db_transaction.atomic():
+                    
+                    tb = TransactionBatch.objects.create(
+                        user=request.user,
+                        batch_id=TransactionBatch.generate_batch_id()
+                    )
+                    for i in transaction_list:
+                        try:
+                            med = Medicine.objects.get(id=int(i.get("medicine")))
+                        except Medicine.DoesNotExist:
+                            continue
+                        try:
+                            dos = DosageInstruction.objects.get(id=int(i.get("dosage")))
+                        except DosageInstruction.DoesNotExist:
+                            continue
+
+                        tx = Transaction.objects.create(
+                            batch=tb,
+                            user=request.user,
+                            dosage=dos,
+                            medicine=med,
+                            quantity_dispensed=i.get("quantity_dispensed"),
+                            remarks=i.get("remarks"),
+                            status='dispensed'
+                        )
+                        tx.dispense()
+
+            except ValueError:
+                messages.error(request, "Error in saving orders")
+                return redirect('transaction-list-forms')
+            messages.success(request, "Order completed successfully")
+            request.session["transactions"] = []
+            return redirect('transaction-success-multiple', tb.batch_id)
+            
+        if remove_id:
+            orders = []
+            for order in transaction_list:
+                if order.get("id") != remove_id:
+                    orders.append(order)
+            request.session["transactions"] = orders
+            return redirect('transaction-list-forms')
+        
+        return render(request, self.template_name, context)
+        
+
+
+        
+        
+        
+        

@@ -24,11 +24,13 @@ class DashboardView(LoginRequiredMixin, View):
         low_stock_qs = Inventory.objects.filter(quantity__lte=10).order_by('quantity')
         near_expiry_qs = Inventory.objects.filter(expiration_date__lte=timezone.now().date() + timezone.timedelta(days=30)).order_by('expiration_date')
         transactions_qs = Transaction.objects.order_by('-transaction_date')
+        expired_qs = Inventory.objects.expired()
 
         # Pagination setup
         low_stock_paginator = Paginator(low_stock_qs, 5)
         near_expiry_paginator = Paginator(near_expiry_qs, 5)
         tx_paginator = Paginator(transactions_qs, 5)
+        expired_paginator = Paginator(expired_qs, 5)
 
         context = {
             'total_medicines': total_medicines,
@@ -39,6 +41,8 @@ class DashboardView(LoginRequiredMixin, View):
             'near_expiry_paginator': near_expiry_paginator,
             'recent_transactions': tx_paginator.get_page(self.request.GET.get('tx_page', 1)),  # Show only first 5 items
             'tx_paginator': tx_paginator,
+            'expired': expired_paginator.get_page(self.request.GET.get('ex_page', 1)),
+            'expired_paginator': expired_paginator,
             'pending_classifications': Classification.objects.filter(approved=False),
             'now': datetime.now(),
         }
@@ -70,6 +74,20 @@ def near_expiry_pagination(request):
     time.sleep(1)
  
     return render(request, 'inventory/partials/dashboard/near_expiry_partials.html', context)
+
+def expired_pagination(request):
+
+    expired_qs = Inventory.objects.expired().order_by('expiration_date')
+    expired_paginator = Paginator(expired_qs, 5)
+    expired_page = expired_paginator.get_page(request.GET.get('exp_page', 1))
+   
+    context = {
+        'expired': expired_page,
+        'expired_paginator': expired_paginator,
+    }
+    time.sleep(1)
+ 
+    return render(request, 'inventory/partials/dashboard/expired_partials.html', context)
 
 def recent_transactions_pagination(request):
    

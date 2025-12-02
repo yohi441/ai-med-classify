@@ -12,6 +12,8 @@
     <link rel="stylesheet" href="{% static 'css/output.css' %}">
     {% htmx_script %}
     <script defer src="{% static 'js/alpine.min.js' %}"></script>
+    <link rel="stylesheet" href="{% static 'css/tom-select.css' %}">
+    <script src="{% static 'js/tom-select.complete.min.js' %}"></script>
     
     <style>
         body {
@@ -73,7 +75,7 @@
       <div class="hidden lg:flex lg:items-center lg:space-x-6">
         {% if user.is_authenticated %}
         <a href="{% url 'dashboard' %}" class="hover:text-indigo-400">Dashboard</a>
-        <a href="{% url 'classify' %}" class="hover:text-indigo-400">Classify</a>
+        <a href="{% url 'inventory-search-view' %}" class="hover:text-indigo-400">Classify</a>
         <a href="{% url 'medicines-list' %}" class="hover:text-indigo-400">Medicines</a>
         <a href="{% url 'inventory-list' %}" class="hover:text-indigo-400">Inventory</a>
         <a href="{% url 'transaction-list' %}" class="hover:text-indigo-400">Transactions</a>
@@ -105,9 +107,12 @@
     {% endif %}
   </div>
 </nav>
+    <div id="notification_toast" class="w-full">
+        {% include 'inventory/components/notification_toast.html' %}
+    </div>
 
     <!-- Main container -->
-    <div class="container mx-auto mt-10">
+    <div class="container mx-auto mt-10 min-h-screen">
         {% block content %}
         {% endblock %}
     </div>
@@ -136,6 +141,13 @@ function batchTransactions() {
                 quantity: 1,
                 remarks: ''
             })
+            this.$nextTick(() => {
+                let index = this.rows.length - 1
+                new TomSelect('#medicine-select-' + index, {
+                    searchField: 'text'
+                })
+            })
+            
         },
 
         removeRow(index) {
@@ -143,5 +155,12 @@ function batchTransactions() {
         }
     }
 }
+</script>
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+    new TomSelect("#medicine-select", {
+        searchField: "text"
+    });
+});
 </script>
 </html>

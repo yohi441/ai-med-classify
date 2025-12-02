@@ -27,18 +27,18 @@
             <template x-for="(row, index) in rows" :key="index">
                 <tr>
                     <td class="border">
-                        <select :name="`form-${index}-medicine`" x-model="row.medicine_id" class="w-full border-0 px-1 py-1 pl-3">
+                        <select :id=`medicine-select-${index}` :name="`form-${index}-medicine`" x-model="row.medicine_id" class="border-0 px-1 py-1 pl-3">
                             <option value="">Select Medicine</option>
                             {% for med in medicines %}
-                            <option value="{{ med.id }}">{{ med.generic_name }} ({{ med.brand_name }})</option>
+                            <option value="{{ med.id }}">{{ med.generic_name }} ({{ med.brand_name }}) - ({{med.intended_for|title}})</option>
                             {% endfor %}
                         </select>
                     </td>
-                    <td class="border">
-                        <input type="number" min="1" :name="`form-${index}-quantity_dispensed`" x-model="row.quantity" class="w-full pl-3 border-none px-1 py-1" />
+                    <td class="border w-36">
+                        <input type="number" min="1" :name="`form-${index}-quantity_dispensed`" x-model="row.quantity" class="w-full pl-3 px-1 py-2 border-none focus:ring-2" />
                     </td>
                     <td class="border">
-                        <select :name="`form-${index}-dosage`" x-model="row.dosage_id" class="w-full pl-3 border-none px-1 py-1">
+                        <select :name="`form-${index}-dosage`" x-model="row.dosage_id" class="w-full pl-3 border-none px-1 py-2 focus:ring-2">
                             <option value="">Select Dosage</option>
                             {% for dos in dosage %}
                             <option value="{{ dos.id }}">{{ dos.label }}</option>
@@ -46,7 +46,7 @@
                         </select>
                     </td>
                     <td class="border">
-                        <input type="text" :name="`form-${index}-remarks`" x-model="row.remarks" class="w-full border-none px-1 py-1" />
+                        <input type="text" :name="`form-${index}-remarks`" x-model="row.remarks" class="w-full border-none px-1 py-2 focus:ring-2" />
                     </td>
                     <td class="border bg-red-500 cursor-pointer">
                         <button type="button" @click="removeRow(index)" class="cursor-pointer w-full px-2 py-1 text-white rounded">❌ Remove</button>

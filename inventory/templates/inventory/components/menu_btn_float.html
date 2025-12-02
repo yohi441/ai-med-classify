@@ -1,0 +1,20 @@
+<div class="fixed top-19 right-10 z-30">
+    <div class="bg-gray-400 p-2 cursor-pointer opacity-50">
+        <!-- Order list -->
+        <!-- Cart -->
+        <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 text-gray-700" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+        <path d="M7 4h-2l-1 2h2l3.6 7.59-1.35 2.45A1 1 0 0 0 8.2 17h8.53a1 1 0 0 0 .92-.61L21 7H6.21L5.27 4H7z"/>
+        <circle cx="10" cy="20" r="1.5"/>
+        <circle cx="18" cy="20" r="1.5"/>
+        </svg>
+    </div>
+    
+    <div id="counter_notif">
+        {% if total_count > 0 %}
+        <div  class="bg-red-600 h-[28px] w-[28px] border px-2 py-2 border-white text-white font-semibold rounded-full flex items-center justify-center text-sm absolute -top-2 -left-2">
+            <span class="text-[12px]">{{ total_count }}</span>
+        </div>
+        {% endif %}
+    </div>
+  
+</div>

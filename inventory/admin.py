@@ -8,11 +8,19 @@ from inventory.models import (
     TransactionBatch,
     DosageInstruction
 )
+from django.utils import timezone
 
 
 admin.site.site_title = "AI Med Classify Admin"
 admin.site.site_header = "AI Med Classify Admin"
 admin.site.index_title = "Admin Dashboard"
+
+# proxy model
+class ExpiredInventory(Inventory):
+    class Meta:
+        proxy = True
+        verbose_name = "Expired stock"
+        verbose_name_plural = "Expired stocks"
 
 
 @admin.register(Classification)
@@ -50,6 +58,17 @@ class TransactionBatchAdmin(admin.ModelAdmin):
 @admin.register(DosageInstruction)
 class DosageInstructionAdmin(admin.ModelAdmin):
     pass
+
+@admin.register(ExpiredInventory)
+class ExpiredInventoryAdmin(admin.ModelAdmin):
+    def get_queryset(self, request):
+        return self.model.objects.expired()
+
+    def has_add_permission(self, request):
+        return False  # optional: prevent adding here
+
+    def has_change_permission(self, request, obj=None):
+        return True
 
 from django.contrib.auth.models import Group
 
