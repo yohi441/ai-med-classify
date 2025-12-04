@@ -4,7 +4,6 @@ from django.shortcuts import render
 from django.views import View
 from django.urls import reverse_lazy
 from inventory.forms import MedicineClassificationForm
-from ai.classify import classify_medicine  # We'll make this next
 from django.contrib.auth.mixins import LoginRequiredMixin
 from inventory.models import Medicine, Inventory, Classification
 from django.db.models import Q, Sum
@@ -73,7 +72,6 @@ class MedicineClassificationView(LoginRequiredMixin, View):
         return render(request, self.template_name, context)
     
 
-from django.shortcuts import render
 from ai.classifier import ai_inventory_search
 
 def inventory_search_view(request):
@@ -97,7 +95,7 @@ def inventory_search_view(request):
                 "expiration_date": inv.expiration_date,
                 "manufacturer": inv.medicine.manufacturer,
             })
-    print(inventory)
+    print(results)
     return render(request, "inventory/classify.html", {
         "query": query,
         "results": results,

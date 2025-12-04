@@ -45,7 +45,6 @@ INSTALLED_APPS = [
 
     #3rd party
     'django_htmx',
-    'django_select2',
 ]
 
 
@@ -86,9 +85,9 @@ WSGI_APPLICATION = 'config.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'django_db',
-        'USER': 'django_user',
-        'PASSWORD': 'djpassword',
+        'NAME': 'ai_med_db',
+        'USER': 'ai_med_user',
+        'PASSWORD': 'aimedpassword',
         'HOST': '127.0.0.1',
         'PORT': '3306',
     }

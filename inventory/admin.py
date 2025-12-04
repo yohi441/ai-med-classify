@@ -31,13 +31,10 @@ class ClassificationAdmin(admin.ModelAdmin):
 
 @admin.register(Medicine)
 class MedicineAdmin(admin.ModelAdmin):
-    list_display = ("generic_name", "brand_name", "manufacturer", "get_classifications")
+    list_display = ("generic_name", "brand_name", "manufacturer",)
     search_fields = ("generic_name", "brand_name", "manufacturer")
     list_filter = ("classification",)
 
-    def get_classifications(self, obj):
-        return ", ".join([c.label for c in obj.classification.all()])
-    get_classifications.short_description = "Classifications"
 
 @admin.register(Inventory)
 class InvetoryAdmin(admin.ModelAdmin):

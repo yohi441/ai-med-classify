@@ -14,8 +14,8 @@ def encode_inventory_text(inv):
     return (
         
         f"{inv.medicine.generic_name} "
-        f"{inv.medicine.brand_name}"
-        f"{classifications}"
+        f"{inv.medicine.brand_name} "
+        f"{classifications} "
     )
 
 
@@ -36,7 +36,6 @@ def build_inventory_index():
 
 
 # Precompute at startup
-inventory_list, embedding_matrix = build_inventory_index()
 
 
 def ai_inventory_search(query, top_k=10):
@@ -44,8 +43,10 @@ def ai_inventory_search(query, top_k=10):
     Search inventory using AI embeddings.
     Returns top_k results with cosine similarity scores.
     """
+    inventory_list, embedding_matrix = build_inventory_index()
     if not inventory_list:
         return []
+    
 
     # Encode user query
     query_vector = model.encode(query, convert_to_tensor=True)

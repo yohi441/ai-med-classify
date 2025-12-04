@@ -3,7 +3,6 @@ from django import forms
 from .models import Transaction, Medicine
 from django.db.models import Sum
 from django.forms import modelformset_factory
-from django_select2 import forms as s2forms
 
 class MedicineClassificationForm(forms.Form):
     input_text = forms.CharField(
