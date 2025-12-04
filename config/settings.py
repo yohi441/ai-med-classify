@@ -86,9 +86,9 @@ WSGI_APPLICATION = 'config.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'ai_med_db',
-        'USER': 'ai_med_user',
-        'PASSWORD': 'aimedpassword',
+        'NAME': 'django_db',
+        'USER': 'django_user',
+        'PASSWORD': 'djpassword',
         'HOST': 'mysql',
         'PORT': '3306',
     }
