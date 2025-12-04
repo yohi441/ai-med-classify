@@ -14,3 +14,19 @@ services:
     command: --default-authentication-plugin=mysql_native_password
     volumes:
       - ./mysql_data:/var/lib/mysql
+
+  web:
+    container_name: django_app
+    tty: true
+    stdin_open: true
+    build:
+      context: .
+    restart: no
+    volumes:
+      - .:/django
+    ports:
+      - "8000:8000"
+    command: bash -c "python manage.py migrate && uvicorn conf.asgi:application --host 0.0.0.0 --port 8000 --workers 4 --timeout-keep-alive 600"
+    # depends_on:
+    #   db:
+    #     condition: service_healthy

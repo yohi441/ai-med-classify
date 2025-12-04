@@ -25,7 +25,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = 'django-insecure-z%%umggrcq)(huhimwm0!_h7rln58)ozf(d8u0#yt$amnuclal'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
 ALLOWED_HOSTS = ['*']
 
@@ -57,6 +57,7 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     "django_htmx.middleware.HtmxMiddleware",
+    'whitenoise.middleware.WhiteNoiseMiddleware'
 ]
 
 ROOT_URLCONF = 'config.urls'
@@ -82,21 +83,14 @@ WSGI_APPLICATION = 'config.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/5.2/ref/settings/#databases
 
-# DATABASES = {
-#     'default': {
-#         'ENGINE': 'django.db.backends.mysql',
-#         'NAME': 'ai_med_db',
-#         'USER': 'ai_med_user',
-#         'PASSWORD': 'aimedpassword',
-#         'HOST': '127.0.0.1',
-#         'PORT': '3306',
-#     }
-# }
-
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'ENGINE': 'django.db.backends.mysql',
+        'NAME': 'ai_med_db',
+        'USER': 'ai_med_user',
+        'PASSWORD': 'aimedpassword',
+        'HOST': 'mysql',
+        'PORT': '3306',
     }
 }
 
@@ -148,6 +142,8 @@ STATIC_URL = '/static/'
 STATICFILES_DIRS = [
     os.path.join(BASE_DIR, 'static'),
 ]
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
+STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field

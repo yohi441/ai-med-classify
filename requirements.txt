@@ -15,13 +15,6 @@ mysqlclient==2.2.5
 channels==4.2.0
 channels-redis==4.2.0
 
-# AI / ML
-transformers[torch]==4.44.2
-torch==2.4.1
-scikit-learn==1.5.2
-numpy==2.1.1
-pandas==2.2.2
-
 # Utils
 python-decouple==3.8
 requests==2.32.3
@@ -37,5 +30,13 @@ isort==5.13.2
 flake8==7.1.1
 
 # django-htmx for enhanced interactivity
-django-htmx-1.26.0
+django-htmx==1.26.0
 
+# transformers
+sentence-transformers==5.1.2
+
+# uvicorn
+uvicorn==0.38.0
+
+# whitenoise
+whitenoise==6.11.0
