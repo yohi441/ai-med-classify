@@ -154,8 +154,8 @@ LOGIN_REDIRECT_URL = 'dashboard'  # after login, go to medicines list
 LOGOUT_REDIRECT_URL = 'login'
 
 CSRF_TRUSTED_ORIGINS = [
-    'https://ai-med-classify.site',
-    'https://www.ai-med-classify.site',  # if using IP
+    'https://aimedclassify.site',
+    'https://www.aimedclassify.site',  # if using IP
 ]
 
 CSRF_COOKIE_SECURE = True      # only send cookie over HTTPS
