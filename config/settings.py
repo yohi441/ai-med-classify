@@ -152,3 +152,11 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 LOGIN_REDIRECT_URL = 'dashboard'  # after login, go to medicines list
 LOGOUT_REDIRECT_URL = 'login'
+
+CSRF_TRUSTED_ORIGINS = [
+    'https://ai-med-classify.site',
+    'https://www.ai-med-classify.site',  # if using IP
+]
+
+CSRF_COOKIE_SECURE = True      # only send cookie over HTTPS
+SESSION_COOKIE_SECURE = True   # also for session cookie if using sessions
