@@ -4,6 +4,18 @@ from django.db.models import Sum
 from django.db import transaction
 from django.utils import timezone
 
+
+class Notification(models.Model):
+    inventory = models.ForeignKey('Inventory', on_delete=models.CASCADE, related_name="notifications")
+    is_read = models.BooleanField(default=False)
+    counted = models.BooleanField(default=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    type = models.CharField(max_length=50, default="expired")
+    message = models.CharField(max_length=255, default="expired notification")
+
+    def __str__(self):
+        return f"Notification for {'Read' if self.is_read else 'Unread'}"
+
 class NotExpiredManager(models.Manager):
 
     def get_queryset(self):
@@ -173,3 +185,15 @@ class DosageInstruction(models.Model):
 
     def __str__(self):
         return self.label
+    
+class ChatSession(models.Model):
+    """Represents a single conversation with the AI."""
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+class ChatMessage(models.Model):
+    """Represents a single message in a chat session."""
+    session = models.ForeignKey(ChatSession, on_delete=models.CASCADE, related_name="messages")
+    sender = models.CharField(max_length=20, choices=[("user","User"),("ai","AI")])
+    content = models.TextField()
+    created_at = models.DateTimeField(auto_now_add=True)

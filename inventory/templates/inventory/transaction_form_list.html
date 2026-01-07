@@ -34,8 +34,7 @@
         <tr>
             <th class="px-4 py-3">Medicine</th>
             <th class="px-4 py-3">Quantity Dispensed</th>
-            <th class="px-4 py-3">Dosage</th>
-            <th class="px-4 py-3">Remarks</th>
+          
 
             <th class="px-4 py-3"></th>
         </tr>
@@ -45,8 +44,7 @@
         <tr class="border-b hover:bg-gray-50">
             <td class="px-4 py-2">{{ transaction.medicine }}</td>
             <td class="px-4 py-2">{{ transaction.quantity_dispensed }}</td>
-            <td class="px-4 py-2">{{ transaction.dosage }}</td>
-            <td class="px-4 py-2">{% if transaction.remarks %}{{ transaction.remarks }}{% else %}None{% endif %}</td>
+             
             <td class="px-4 py-2 flex justify-end">
                 <form action="{% url 'transaction-list-forms' %}" method="post">
                     {% csrf_token %}

@@ -5,99 +5,101 @@ from django.views import View
 from django.urls import reverse_lazy
 from inventory.forms import MedicineClassificationForm
 from django.contrib.auth.mixins import LoginRequiredMixin
-from inventory.models import Medicine, Inventory, Classification
+from inventory.models import Notification, ChatSession, ChatMessage
 from django.db.models import Q, Sum
 from datetime import datetime
+from openai import OpenAI
+import markdown
+from config.settings import HF_API_KEY
 
 
 class MedicineClassificationView(LoginRequiredMixin, View):
     template_name = 'inventory/classify.html'
     login_url = 'login'
-    success_url = reverse_lazy('classify')
     CONFIDENCE_THRESHOLD = 10  # percent
+
+    def generate_ai_reply(self, input_text):
+        client = OpenAI(
+            base_url="https://router.huggingface.co/v1",
+            api_key=HF_API_KEY,
+        )
+
+        completion = client.chat.completions.create(
+            model="meta-llama/Llama-3.1-8B-Instruct:cerebras",
+            messages=[
+                {
+                    "role": "user",
+                    "content": input_text,
+                }
+            ],
+        )
+
+     
+        return completion.choices[0].message.content
 
     def get(self, request):
         """Render the blank classification form."""
         form = MedicineClassificationForm()
+        session, _ = ChatSession.objects.get_or_create(user=request.user)
+        messages = session.messages.order_by("-created_at")
         context = {
             'form': form,
             'now': datetime.now(),
+            "ai_messages": messages,
+            "show_typing": False, 
+            "notifications": Notification.objects.filter(is_read=False).order_by('-created_at'),
+            "notification_count": Notification.objects.filter(counted=True).count(),
         }
         return render(request, self.template_name, context)
-
+    
     def post(self, request):
-        """Handle form submission, run AI classification, and return results."""
+        """Process the classification form submission."""
         form = MedicineClassificationForm(request.POST)
-        if not form.is_valid():
-            # Invalid form: redisplay with errors
-            return render(request, self.template_name, {
-                'form': form,
-                'now': datetime.now(),
-            })
+        ai_response = None
+        user_question = None
 
-        input_text = form.cleaned_data['input_text']
-
-        # 1️⃣ Run AI classifier
-        ai_result = classify_medicine(input_text)
-        predicted_label = ai_result["label"]
-        top_score = ai_result["score"]  # already in percentage
-
-        medicines = Medicine.objects.none()
-        classification = None
-
-        # 2️⃣ Only proceed if confidence meets threshold
-        if top_score >= self.CONFIDENCE_THRESHOLD:
-            medicines = Medicine.objects.filter(
-                classification__label__iexact=predicted_label
-            ).annotate(total_stock=Sum("inventory__quantity"))
-
-            classification = Classification.objects.create(
-                label=predicted_label,
-                ai_confidence_score=top_score,
-                approved=False
+        if form.is_valid():
+            input_text = form.cleaned_data['input_text']
+            # Call the AI service to get a response
+            
+            
+            session, _ = ChatSession.objects.get_or_create(user=request.user)
+            
+            
+            ai_response = self.generate_ai_reply(input_text)
+            # Save user question
+            ChatMessage.objects.create(
+                session=session,
+                sender="user",
+                content=input_text
             )
-
-        # 3️⃣ Return rendered response (for HTMX or normal)
+            # Save AI reply
+            ChatMessage.objects.create(
+                session=session,
+                sender="ai",
+                content=ai_response
+            )
+            
+            
+            
+        ai_response = markdown.markdown(ai_response)
+        messages = session.messages.order_by("-created_at")
+        form = MedicineClassificationForm()
         context = {
             'form': form,
-            'ai': ai_result,
-            'medicines': medicines,
-            'classification': classification,
-            'confidence_threshold': self.CONFIDENCE_THRESHOLD,
+            "ai_messages": messages,
+            'ai_response': ai_response,
+            "user_question": user_question,
+            "show_typing": True,
             'now': datetime.now(),
+            "notifications": Notification.objects.filter(is_read=False).order_by('-created_at'),
+            "notification_count": Notification.objects.filter(counted=True).count(),
         }
-        if request.htmx:
-            print("HTMX request detected.")
-            return render(request, 'inventory/partials/classify/form_partials.html', context)
         return render(request, self.template_name, context)
     
 
-from ai.classifier import ai_inventory_search
 
-def inventory_search_view(request):
-    query = request.GET.get("q", "")
-    results = []
-    inventory = []
-    if query:
-        search_results = ai_inventory_search(query, top_k=10)
-        
-        # search_results is a list of (score, Inventory) tuples
-        for score, inv in search_results:
-            inventory.append((inv, round(score * 100, 2)))
-            results.append({
-                "score": round(score * 100, 2),
-                "medicine_name": inv.medicine.generic_name,
-                "brand_name": inv.medicine.brand_name,
-                "dosage_form": inv.medicine.dosage_form,
-                "strength": inv.medicine.strength,
-                "batch_number": inv.batch_number,
-                "quantity": inv.quantity,
-                "expiration_date": inv.expiration_date,
-                "manufacturer": inv.medicine.manufacturer,
-            })
-    print(results)
-    return render(request, "inventory/classify.html", {
-        "query": query,
-        "results": results,
-        "inventory": inventory,
-    })
+
+    
+
+

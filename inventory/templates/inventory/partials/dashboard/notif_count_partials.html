@@ -1,0 +1,7 @@
+<div id="notif-count">
+{% if notification_count %}
+<div @click="notif = true" class="hover:text-white font-semibold absolute top-0 -right-4 bg-red-600 rounded-full px-[7px] py-[3px] text-[10px]">
+    {{ notification_count }}
+</div>
+{% endif %}
+</div>

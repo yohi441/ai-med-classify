@@ -3,7 +3,7 @@
 from django.db.models import F
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.views.generic import ListView, DetailView
-from inventory.models import Inventory, Transaction
+from inventory.models import Inventory, Transaction, Notification
 from datetime import datetime
 from django.db.models import Q
 
@@ -34,6 +34,8 @@ class InventoryListView(LoginRequiredMixin, ListView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['now'] = datetime.now()
+        context["notifications"] = Notification.objects.filter(is_read=False).order_by('-created_at')
+        context["notification_count"] = Notification.objects.filter(counted=True).count()
         return context
     
 class InventoryDetailView(LoginRequiredMixin, DetailView):
@@ -55,6 +57,8 @@ class InventoryDetailView(LoginRequiredMixin, DetailView):
             .order_by("-transaction_date")[:20]
         )
         context["now"] = datetime.now()
+        context["notifications"] = Notification.objects.filter(is_read=False).order_by('-created_at')
+        context["notification_count"] = Notification.objects.filter(counted=True).count()
         return context
 
 

@@ -1,6 +1,6 @@
 # inventory/views.py
 from django.views.generic import ListView, DetailView, CreateView, UpdateView
-from inventory.models import Medicine
+from inventory.models import Medicine, Notification
 from django.db.models import Sum, Q
 from django.contrib.auth.mixins import LoginRequiredMixin
 from datetime import datetime
@@ -32,6 +32,8 @@ class MedicineListView(LoginRequiredMixin, ListView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context["now"] = datetime.now()
+        context["notifications"] = Notification.objects.filter(is_read=False).order_by('-created_at')
+        context["notification_count"] = Notification.objects.filter(counted=True).count()
 
         return context
 
@@ -44,5 +46,6 @@ class MedicineDetailView(LoginRequiredMixin, DetailView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context["now"] = datetime.now()
-
+        context["notifications"] = Notification.objects.filter(is_read=False).order_by('-created_at')
+        context["notification_count"] = Notification.objects.filter(counted=True).count()
         return context

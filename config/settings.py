@@ -25,7 +25,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = 'django-insecure-z%%umggrcq)(huhimwm0!_h7rln58)ozf(d8u0#yt$amnuclal'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False
+DEBUG = True
 
 ALLOWED_HOSTS = ['*']
 
@@ -42,6 +42,7 @@ INSTALLED_APPS = [
 
     # project app
     'inventory',
+    'chat',
 
     #3rd party
     'django_htmx',
@@ -89,7 +90,7 @@ DATABASES = {
         'NAME': 'django_db',
         'USER': 'django_user',
         'PASSWORD': 'djpassword',
-        'HOST': 'mysql',
+        'HOST': '127.0.0.1',
         'PORT': '3306',
     }
 }
@@ -142,8 +143,9 @@ STATIC_URL = '/static/'
 STATICFILES_DIRS = [
     os.path.join(BASE_DIR, 'static'),
 ]
-STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
-STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
+if not DEBUG:
+    STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
+    STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
@@ -152,11 +154,14 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 LOGIN_REDIRECT_URL = 'dashboard'  # after login, go to medicines list
 LOGOUT_REDIRECT_URL = 'login'
+if not DEBUG:
+    CSRF_TRUSTED_ORIGINS = [
+        'https://aimedclassify.site',
+        'https://www.aimedclassify.site',  # if using IP
+    ]
+    CSRF_COOKIE_SECURE = True      # only send cookie over HTTPS
+    SESSION_COOKIE_SECURE = True   # also for session cookie if using sessions
 
-CSRF_TRUSTED_ORIGINS = [
-    'https://aimedclassify.site',
-    'https://www.aimedclassify.site',  # if using IP
-]
 
-CSRF_COOKIE_SECURE = True      # only send cookie over HTTPS
-SESSION_COOKIE_SECURE = True   # also for session cookie if using sessions
+
+

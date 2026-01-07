@@ -23,15 +23,10 @@
         <p><span class="font-semibold">Pharmacist:</span> {{ transaction.user }}</p>
         <p><span class="font-semibold">Stock After:</span> {{ transaction.stock_after }}</p>
         <p><span class="font-semibold">Date:</span> {{ transaction.transaction_date }}</p>
-        <p><span class="font-semibold">Dosage:</span> {{ transaction.dosage }}</p>
+ 
     </div>
 
-    <div class="mb-6">
-        <p class="font-semibold">Remarks:</p>
-        <p class="bg-gray-50 border rounded-md p-3 text-gray-700">
-            {{ transaction.remarks|default:"— No remarks —" }}
-        </p>
-    </div>
+   
 
     {% if transaction.status == "pending" %}
     <form method="post" action="{% url 'transaction-status-update' transaction.pk %}" class="flex gap-3 flex-wrap">
@@ -74,7 +69,7 @@
                 ⬅ Back to Transactions
             </a>
         </button>
-        {% if transaction.batch %}
+        <!-- {% if transaction.batch %}
         <button class="bg-blue-500 px-2 py-2 rounded-md">
             <a href="{% url 'transaction-success-multiple' transaction.batch_id %}" 
             class="text-white hover:text-white flex items-center">
@@ -88,7 +83,7 @@
                 🖨 Print View
             </a>
         </button>
-        {% endif %}
+        {% endif %} -->
         
     </div>
 </div>

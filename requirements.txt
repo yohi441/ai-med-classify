@@ -40,3 +40,19 @@ uvicorn==0.38.0
 
 # whitenoise
 whitenoise==6.11.0
+
+# celery for async tasks
+celery==5.6.0
+
+# redis as message broker
+redis==6.4.0
+
+# django celery results backend
+django-celery-results==2.6.0
+
+# openai
+openai
+
+# markdown
+markdown
+

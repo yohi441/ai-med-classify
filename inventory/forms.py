@@ -6,12 +6,12 @@ from django.forms import modelformset_factory
 
 class MedicineClassificationForm(forms.Form):
     input_text = forms.CharField(
-        label='Enter Medicine Name or Description',
+        label='Enter AI Question',
         widget=forms.Textarea(
             attrs={
                 'rows': 3,
-                'placeholder': 'e.g. paracetamol tablet 500mg',
-                'class': 'w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm '
+                'placeholder': 'Enter you question here...',
+                'class': 'w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm mt-10'
                          'focus:ring-2 focus:ring-blue-500 focus:border-blue-500 '
                          'text-sm resize-none',
             }
@@ -24,7 +24,7 @@ class TransactionForm(forms.ModelForm):
 
     class Meta:
         model = Transaction
-        fields = ["medicine", "quantity_dispensed", "dosage", "remarks"]
+        fields = ["medicine", "quantity_dispensed", ]
         widgets = {
             "medicine": forms.Select(attrs={
                 "id": "medicine-select",
@@ -33,18 +33,9 @@ class TransactionForm(forms.ModelForm):
             "quantity_dispensed": forms.NumberInput(attrs={
                 "class": "w-full border rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
             }),
-           "dosage": forms.Select(attrs={
-                "class": "cursor-pointer w-full border rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500",
-            }),
-            "remarks": forms.Textarea(attrs={
-                "rows": 3,
-                "class": "w-full border rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-            }),
+           
         }
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-
-        self.fields["dosage"].required = True
+    
 
     def clean(self):
         cleaned_data = super().clean()

@@ -18,18 +18,42 @@ services:
       timeout: 3s
       retries: 5
 
-  web:
-    container_name: ai-med
-    tty: true
-    stdin_open: true
-    build:
-      context: .
+  # web:
+  #   container_name: ai-med
+  #   tty: true
+  #   stdin_open: true
+  #   build:
+  #     context: .
+  #   restart: no
+  #   volumes:
+  #     - .:/django
+  #   ports:
+  #     - "8000:8000"
+  #   command: bash -c "python manage.py migrate && python manage.py collectstatic --no-input && uvicorn config.asgi:application --host 0.0.0.0 --port 8000 --workers 4 --timeout-keep-alive 600 --reload"
+  #   depends_on:
+  #       mysql:
+  #         condition: service_healthy
+
+  redis:
+    image: redis:7-alpine
+    container_name: redis
     restart: no
-    volumes:
-      - .:/django
     ports:
-      - "8000:8000"
-    command: bash -c "python manage.py migrate && python manage.py collectstatic --no-input && uvicorn config.asgi:application --host 0.0.0.0 --port 8000 --workers 4 --timeout-keep-alive 600"
-    depends_on:
-        mysql:
-          condition: service_healthy
+      - "6379:6379"
+
+  # celery:
+  #   build:
+  #     context: .
+  #   container_name: celery_worker
+  #   command: >
+  #     celery -A config worker
+  #     --loglevel=info
+  #     --concurrency=1
+  #     --queue=ai
+  #   restart: no
+  #   depends_on:
+  #     - redis
+  #     - web
+  #     - mysql
+  #   environment:
+  #     - DJANGO_SETTINGS_MODULE=config.settings

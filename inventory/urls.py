@@ -1,7 +1,6 @@
 # inventory/urls.py
 
 from django.urls import path
-from inventory.views.classification import MedicineClassificationView, inventory_search_view
 from inventory.views.dashboard import (
     DashboardView,
     low_stock_pagination,
@@ -9,6 +8,7 @@ from inventory.views.dashboard import (
     recent_transactions_pagination,
     expired_pagination,
 )    
+from inventory.views.classification import MedicineClassificationView
 from inventory.views.medicine import MedicineDetailView, MedicineListView
 from inventory.views.inventory import InventoryListView, InventoryDetailView
 from inventory.views.transaction import (
@@ -22,10 +22,10 @@ from inventory.views.transaction import (
     TransactionItemsListView
 )
 from django.contrib.auth import views as auth_views
+from inventory.views.dashboard import notification_view, mark_notifications_as_bell_is_clicked, mark_notifications_as_viewed
 
 urlpatterns = [
     path('', DashboardView.as_view(), name='dashboard'),
-    path('classify/', MedicineClassificationView.as_view(), name='classify'),
     path("medicines/", MedicineListView.as_view(), name="medicines-list"),
     path("medicines/<int:pk>/", MedicineDetailView.as_view(), name="medicine-detail"),
     path("inventory/", InventoryListView.as_view(), name="inventory-list"),
@@ -37,8 +37,8 @@ urlpatterns = [
     path("transaction/create/multiple/", TransactionCreateMultipleView.as_view(), name='transaction-create-multiple'),
     path("transaction/success/single/<int:pk>/", TransactionSuccessView.as_view(), name='transaction-success'),
     path("transaction/success/multiple/<str:pk>/", TransactionSuccessMultipleView.as_view(), name='transaction-success-multiple'),
-    path('ai/search/', inventory_search_view, name='inventory-search-view'),
     path('transactions/list/', TransactionItemsListView.as_view(), name='transaction-list-forms'),
+    path('classify/', MedicineClassificationView.as_view(), name='classify'),  # Placeholder for classification view
 
 
     # HTMX
@@ -46,6 +46,10 @@ urlpatterns = [
     path("near-expiry-pagination/", near_expiry_pagination, name="near-expiry-pagination"),
     path("tx-pagination/", recent_transactions_pagination, name="recent-transactions-pagination"),
     path("expired-pagination/", expired_pagination, name='expired-pagination'),
+    path("notifications/", notification_view, name="notifications"),
+    path("bell-clicked/", mark_notifications_as_bell_is_clicked, name="mark-notifications-as-bell-clicked"),
+    path("notifications/viewed/<int:pk>/", mark_notifications_as_viewed, name="mark-notifications-as-viewed"),
+    
 
 
     # authentication

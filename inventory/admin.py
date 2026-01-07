@@ -6,7 +6,10 @@ from inventory.models import (
     Transaction, 
     AuditLog, 
     TransactionBatch,
-    DosageInstruction
+    DosageInstruction,
+    ChatMessage,
+    ChatSession,
+    Notification
 )
 from django.utils import timezone
 
@@ -14,6 +17,16 @@ from django.utils import timezone
 admin.site.site_title = "AI Med Classify Admin"
 admin.site.site_header = "AI Med Classify Admin"
 admin.site.index_title = "Admin Dashboard"
+
+class NotificationAdmin(admin.ModelAdmin):
+    pass
+admin.site.register(Notification, NotificationAdmin)
+class ChatMessageAdmin(admin.ModelAdmin):
+    pass
+admin.site.register(ChatMessage, ChatMessageAdmin)
+class ChatSessionAdmin(admin.ModelAdmin):
+    pass
+admin.site.register(ChatSession, ChatSessionAdmin)
 
 # proxy model
 class ExpiredInventory(Inventory):

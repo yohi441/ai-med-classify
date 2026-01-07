@@ -2,7 +2,7 @@
 
 from django.views.generic import ListView, CreateView, DetailView, View
 from django.contrib.auth.mixins import LoginRequiredMixin
-from inventory.models import Transaction, TransactionBatch, DosageInstruction
+from inventory.models import Transaction, TransactionBatch, DosageInstruction, Notification
 from inventory.forms import TransactionForm
 from django.urls import reverse_lazy
 from django.db.models import Sum, Q
@@ -49,6 +49,8 @@ class TransactionListView(LoginRequiredMixin, ListView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context["now"] = datetime.now()
+        context["notifications"] = Notification.objects.filter(is_read=False).order_by('-created_at')
+        context["notification_count"] = Notification.objects.filter(counted=True).count()
         return context
     
 class TransactionCreateView(LoginRequiredMixin, View):
@@ -63,7 +65,9 @@ class TransactionCreateView(LoginRequiredMixin, View):
         transactions = request.session.get('transactions', [])
         context = {
             "form": form,
-            "total_count": len(transactions)
+            "total_count": len(transactions),
+            "notifications": Notification.objects.filter(is_read=False).order_by('-created_at'),
+            "notification_count": Notification.objects.filter(counted=True).count(),
         }
         return render(request, self.template_name, context)
     
@@ -80,8 +84,6 @@ class TransactionCreateView(LoginRequiredMixin, View):
                     "user": obj.user.id,
                     "medicine": obj.medicine.id,
                     "quantity_dispensed": obj.quantity_dispensed,
-                    "dosage": obj.dosage.id,
-                    "remarks": obj.remarks
                 }
             )
             messages.success(request, "Added successfully")
@@ -90,7 +92,9 @@ class TransactionCreateView(LoginRequiredMixin, View):
             form = TransactionForm()  # return a fresh empty form
             context = {
                 "form": form,
-                "total_count": len(transactions)
+                "total_count": len(transactions),
+                "notifications": Notification.objects.filter(is_read=False).order_by('-created_at'),
+                "notification_count": Notification.objects.filter(counted=True).count(),
             }
            
             return render(request, self.template_name, context)
@@ -118,6 +122,8 @@ class TransactionDetailView(LoginRequiredMixin, DetailView):
         transaction = self.get_object()
         context["transaction"] = transaction
         context["now"] = datetime.now()
+        context["notifications"] = Notification.objects.filter(is_read=False).order_by('-created_at')
+        context["notification_count"] = Notification.objects.filter(counted=True).count()
         return context
     
 class TransactionStatusUpdateView(LoginRequiredMixin, View):
@@ -236,7 +242,9 @@ class TransactionSuccessView(LoginRequiredMixin, View):
     def get(self, request, pk):
         transaction = Transaction.objects.get(pk=pk)
         context = {
-            "transaction": transaction
+            "transaction": transaction,
+            "notifications": Notification.objects.filter(is_read=False).order_by('-created_at'),
+            "notification_count": Notification.objects.filter(counted=True).count(),
         }
         return render(request, self.template_name, context)
     
@@ -246,7 +254,9 @@ class TransactionSuccessMultipleView(LoginRequiredMixin, View):
         batch = TransactionBatch.objects.get(pk=pk)
         transaction_items = Transaction.objects.filter(batch=batch)
         context = {
-            "transaction_items": transaction_items
+            "transaction_items": transaction_items,
+            "notifications": Notification.objects.filter(is_read=False).order_by('-created_at'),
+            "notification_count": Notification.objects.filter(counted=True).count(),
         }
         print(transaction_items)
         return render(request, self.template_name, context)
@@ -261,21 +271,21 @@ class TransactionItemsListView(LoginRequiredMixin, View):
         for transaction in transaction_list:
             user = User.objects.get(pk=transaction.get("user"))
             medicine = Medicine.objects.get(pk=transaction.get("medicine"))
-            dosage = DosageInstruction.objects.get(pk=transaction.get("dosage"))
             update_transaction_list.append(
                 {
                     "id": transaction.get("id"),
                     "user": user,
                     "medicine": medicine,
                     "quantity_dispensed": transaction.get("quantity_dispensed"),
-                    "dosage": dosage,
-                    "remarks": transaction.get("remarks", "None")
                 }
             )
         
         context = {
             "transactions": update_transaction_list,
-            "total_count": len(transaction_list)
+            "total_count": len(transaction_list),
+            "notifications": Notification.objects.filter(is_read=False).order_by('-created_at'),
+            "notification_count": Notification.objects.filter(counted=True).count(),
+            
         }
         
         return render(request, self.template_name, context)
@@ -287,7 +297,9 @@ class TransactionItemsListView(LoginRequiredMixin, View):
         remove_id = request.POST.get("remove_id", "")
         context = {
                 "transactions": transaction_list,
-                "total_count": len(transaction_list)
+                "total_count": len(transaction_list),
+                "notifications": Notification.objects.filter(is_read=False).order_by('-created_at'),
+                "notification_count": Notification.objects.filter(counted=True).count(),
         }
 
         
@@ -316,18 +328,13 @@ class TransactionItemsListView(LoginRequiredMixin, View):
                             med = Medicine.objects.get(id=int(i.get("medicine")))
                         except Medicine.DoesNotExist:
                             continue
-                        try:
-                            dos = DosageInstruction.objects.get(id=int(i.get("dosage")))
-                        except DosageInstruction.DoesNotExist:
-                            continue
+                        
 
                         tx = Transaction.objects.create(
                             batch=tb,
                             user=request.user,
-                            dosage=dos,
                             medicine=med,
                             quantity_dispensed=i.get("quantity_dispensed"),
-                            remarks=i.get("remarks"),
                             status='dispensed'
                         )
                         tx.dispense()
