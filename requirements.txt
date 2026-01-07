@@ -56,3 +56,6 @@ openai
 # markdown
 markdown
 
+# django-environ
+django-environ
+

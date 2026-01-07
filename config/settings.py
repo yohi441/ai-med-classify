@@ -13,11 +13,19 @@ https://docs.djangoproject.com/en/5.2/ref/settings/
 from pathlib import Path
 import os
 from django.contrib.messages import constants as messages
+import environ
+
+env = environ.Env(
+    # set casting, default value
+    DEBUG=(bool, False)
+)
+
+
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-
+environ.Env.read_env(os.path.join(BASE_DIR, '.env'))
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.2/howto/deployment/checklist/
 
@@ -163,5 +171,6 @@ if not DEBUG:
     SESSION_COOKIE_SECURE = True   # also for session cookie if using sessions
 
 
-
+# Hugging Face API Key
+HF_API_KEY = env('HF_API_KEY')
 
