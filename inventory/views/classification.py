@@ -10,7 +10,11 @@ from django.db.models import Q, Sum
 from datetime import datetime
 from openai import OpenAI
 import markdown
+<<<<<<< HEAD
 from config.settings import HF_API_KEY
+=======
+from django.conf import settings
+>>>>>>> 5750e87 (Update the hf api keys)
 
 
 class MedicineClassificationView(LoginRequiredMixin, View):
@@ -21,7 +25,7 @@ class MedicineClassificationView(LoginRequiredMixin, View):
     def generate_ai_reply(self, input_text):
         client = OpenAI(
             base_url="https://router.huggingface.co/v1",
-            api_key=HF_API_KEY,
+            api_key=settings.HF_API_KEY
         )
 
         completion = client.chat.completions.create(
